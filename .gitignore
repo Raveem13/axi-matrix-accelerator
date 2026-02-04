@@ -1,0 +1,54 @@
+# My files
+Todo/
+
+# =========================
+# Vivado / XSIM generated
+# =========================
+
+# XSIM simulation output
+xsim.dir/
+xsim.covdb/
+*.log
+*.jou
+*.pb
+
+# XSIM coverage databases (custom dirs)
+covdb_*/
+*.covdb
+
+# Elaborated simulation snapshots
+*.sim
+*.wdb
+
+# =========================
+# Vivado project artifacts
+# =========================
+
+.vivado/
+*.cache
+*.hw
+*.runs
+*.srcs
+*.ip_user_files
+*.Xil
+
+# =========================
+# Reports / temporary
+# =========================
+
+reports/
+*.html
+*.css
+# *.xml
+# *.json
+
+# =========================
+# OS / editor junk
+# =========================
+
+# .DS_Store
+# Thumbs.db
+# .vscode/
+# .idea/
+# *.swp
+# *~
