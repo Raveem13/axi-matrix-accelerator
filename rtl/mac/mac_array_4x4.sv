@@ -1,16 +1,15 @@
 module mac_array_4x4 #(
-    parameter A_WIDTH = 8,
-    parameter B_WIDTH = 8,
-    parameter ACC_WIDTH = 32,
+    parameter DATA_W = 8,
+    parameter ACC_W = 32,
     parameter M = 4         //matrix size
 )(
     input  logic clk,
     input  logic rst_n,        //active-low reset
     input  logic en,
 
-    input  logic signed [A_WIDTH-1:0] a [M][M],
-    input  logic signed [B_WIDTH-1:0] b [M][M],
-    output logic signed [ACC_WIDTH-1:0] acc [M][M]
+    input  logic signed [DATA_W-1:0] a [M][M],
+    input  logic signed [DATA_W-1:0] b [M][M],
+    output logic signed [ACC_W-1:0] acc [M][M]
 );
 
     genvar i, j;
