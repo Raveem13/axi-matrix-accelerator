@@ -8,7 +8,11 @@ module basic_tb;
 
   // DUT
   // mac dut (
-  mac_array_4x4 dut(
+  mac_array_4x4 #(
+    .DATA_W(8),
+    .ACC_W(32)
+  )
+  dut(
     .clk(clk),
     .rst_n(rst_n),
     .en(en),
