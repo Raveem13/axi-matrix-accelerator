@@ -18,6 +18,11 @@ module basic_tb;
     .acc(acc)
   );
 
+  initial begin
+    $dumpfile("wave.vcd");
+    $dumpvars(0, basic_tb);
+  end
+
   // Clock
   always #5 clk = ~clk;
 
@@ -27,37 +32,38 @@ module basic_tb;
     en = 0;
     a = 0;
     b = 0;
-
+    
     // Reset
     #20; rst_n = 1;
+    clear = 0;
 
     // Test 1: 3*4
     @(posedge clk);
-    en = 1;
     a = 3;
     b = 4;
 
     @(posedge clk);
+    en = 1;
+
     @(posedge clk);
-    en = 0;
+    $display("Acc = %0d , Expected = 12, clear = %0d", acc, clear);
     clear = 1;
-
-    // #10;
-    $display("Acc = %0d , Expected = 12", acc);
-
-        // Test 2: 5*-2
+    
+    en = 0;
+    // Test 2: 1*2
     @(posedge clk);
     clear = 0;
+
+    a = 1;
+    b = 2;
+
+    @(posedge clk);
     en = 1;
-    a = 5;
-    b = -2;
 
     @(posedge clk);
-    @(posedge clk);
-    en = 0;
+    $display("Acc = %0d , Expected = 2, clear = %0d", acc, clear);
+    clear = 1;
 
-    // #10;
-    $display("Acc = %0d , Expected = 2", acc);
 
     #20;
     $finish;
