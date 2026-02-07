@@ -19,9 +19,19 @@ module matmul_2x2_k2 #(
     logic signed [DATA_W-1:0] a_mac [2][2];
     logic signed [DATA_W-1:0] b_mac [2][2];
 
+    logic en_q;
+
+    always_ff @(posedge clk) begin
+        if (!rst_n)
+            en_q <= 0;
+        else
+            en_q <= en;
+    end
+
     typedef enum logic [2:0] {
         IDLE,
         CLEAR,
+        WAIT,
         K0,
         K1,
         DONE
@@ -50,6 +60,12 @@ module matmul_2x2_k2 #(
 
                 CLEAR: begin
                     clear <= 1;   // one clean cycle
+                    en    <= 0;
+                    state <= WAIT;
+                end
+
+                WAIT: begin
+                    clear <= 0;
                     en    <= 0;
                     state <= K0;
                 end
@@ -113,5 +129,57 @@ module matmul_2x2_k2 #(
         .b(b_mac),
         .acc(C) 
     );
+
+    `ifndef SYNTHESIS
+    // assertions here
+
+    // k must be 0 immediately after reset deassertion
+    property k_reset_check;
+        @(posedge clk)
+        !rst_n |=> (k == 0);
+    endproperty
+
+    assert property (k_reset_check)
+        else $fatal("ASSERTION FAILED: k not reset to 0");
+
+    // When MAC is enabled, k must be valid (0 or 1)
+    property k_valid_when_en;
+        @(posedge clk)
+        en |-> (k inside {0,1});
+    endproperty
+
+    assert property (k_valid_when_en)
+        else $fatal("ASSERTION FAILED: en asserted with invalid k=%0d", k);
+
+    // If k=1 with en, previous en cycle must have been k=0
+    property k_sequence_check;
+        @(posedge clk)
+        (en && k == 1) |-> $past(en && k == 0);
+    endproperty
+
+    assert property (k_sequence_check)
+        else $fatal("ASSERTION FAILED: k=1 seen without prior k=0");
+
+    // clear and en must never be high together
+    property clear_en_exclusive;
+        @(posedge clk)
+        disable iff (!rst_n)
+        !(clear && en);
+    endproperty
+
+    assert property (clear_en_exclusive)
+        else $fatal("ASSERTION FAILED: clear and en asserted together");
     
+    // Optional: Accumulator must only change when en=1
+    property acc_changes_only_on_en;
+        @(posedge clk)
+        disable iff (!rst_n)
+        (!en && !clear && !en_q) |-> $stable(C);
+    endproperty
+
+    assert property (acc_changes_only_on_en)
+        else $fatal("ASSERTION FAILED: acc changed without en");
+
+    `endif
+
 endmodule
