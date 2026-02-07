@@ -11,7 +11,7 @@ module mac_array_2x2 #(
     input logic signed [DATA_W-1:0]   b[2][2],
     output logic signed [ACC_W-1:0]   acc[2][2]
 );
-
+    
     mac mac00(
         .clk(clk),
         .rst_n(rst_n),
