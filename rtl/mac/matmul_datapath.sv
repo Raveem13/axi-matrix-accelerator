@@ -1,0 +1,55 @@
+/*
+Datapath Module
+
+matmul_datapath.sv responsibilities ONLY:
+* MAC array
+* Accumulators
+* A/B mapping based on `k`
+*/
+module matmul_datapath #(
+    parameter DATA_W = 8,
+    parameter ACC_W = 32,
+    parameter M = 2,
+    parameter N = 2,
+    parameter K = 2
+)(
+    input logic clk,
+    input logic rst_n,
+    input logic en,
+    input logic clear,
+    input logic [$clog2(K):0] k,
+    
+    input logic signed [DATA_W-1:0] A [M][K],
+    input logic signed [DATA_W-1:0] B [K][N],
+
+    output logic signed [ACC_W-1:0] C [M][N]
+);
+    // internal signals
+    logic signed [DATA_W-1:0] a_mac [2][2];
+    logic signed [DATA_W-1:0] b_mac [2][2];
+// );   
+    
+    // Data mapping
+    always_comb begin
+        for (int i=0; i<M; ++i) begin
+            for (int j=0; j<N; ++j) begin
+                a_mac[i][j] = A[i][k];
+                b_mac[i][j] = B[k][j];
+            end
+        end
+        // $display("A = %p", A);
+        // $display("B = %p", B);
+    end
+
+    mac_array_2x2   mac_array (
+        .clk(clk),
+        .rst_n(rst_n),
+        .en(en),
+        .clear(clear),
+        .a(a_mac),
+        .b(b_mac),
+        .acc(C) 
+    );
+
+endmodule
+
