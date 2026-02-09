@@ -10,13 +10,13 @@ module matmul_core_tb #(
     logic rst_n;
     logic start;
 
-    logic signed [DATA_W-1:0] A [2][K] = '{default:0};
-    logic signed [DATA_W-1:0] B [K][2] = '{default:0};
+    logic signed [DATA_W-1:0] A [M][K] = '{default:0};
+    logic signed [DATA_W-1:0] B [K][N] = '{default:0};
 
-    logic signed [ACC_W-1:0] C [2][2];
+    logic signed [ACC_W-1:0] C [M][N];
     logic done;
 
-    logic signed [ACC_W-1:0] C_ref[2][2];
+    logic signed [ACC_W-1:0] C_ref[N][N];
     bit mismatch;
 
   // DUT
