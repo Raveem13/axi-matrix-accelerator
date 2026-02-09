@@ -105,6 +105,14 @@ module matmul_ctrlpath #(
     endproperty
 
     assert property (k_range)
-        else $fatal("k out of range = %0d", k);    
+        else $fatal("k out of range = %0d", k);  
+
+    assert property (@(posedge clk) !rst_n |-> !done);  
+
+    assert property (@(posedge clk) clear |-> !en)
+    else $fatal("clear and en both high");   
+
+    assert property (@(posedge clk) done |-> !en)
+    else $fatal("done asserted while en still high");  
 
 endmodule
