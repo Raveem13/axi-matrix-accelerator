@@ -89,13 +89,22 @@ module matmul_ctrlpath #(
 
     assign k_done = (k == K-1);
 
-    // // k must be 0 immediately after reset deassertion
-    // property k_reset_check;
-    //     @(posedge clk)
-    //     !rst_n |=> (k == 0);
-    // endproperty
+    // k must be 0 immediately after reset deassertion
+    property k_reset_check;
+        @(posedge clk)
+        !rst_n |=> (k == 0);
+    endproperty
 
-    // assert property (k_reset_check)
-    //     else $fatal("ASSERTION FAILED: k not reset to 0");
+    assert property (k_reset_check)
+        else $fatal("ASSERTION FAILED: k not reset to 0");
+
+    // k in range
+    property k_range;
+        @(posedge clk) 
+        en |-> (k < K);
+    endproperty
+
+    assert property (k_range)
+        else $fatal("k out of range = %0d", k);    
 
 endmodule

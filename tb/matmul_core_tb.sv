@@ -1,5 +1,5 @@
 module matmul_core_tb #(
-    parameter DATA_W = 8,
+    parameter DATA_W = 16,
     parameter ACC_W = 32
     );
     logic clk;
@@ -98,8 +98,8 @@ endmodule
 
     // Reference Model
 task automatic golden_matmul_2x2_kn(
-  input logic signed [7:0] A [2][2],
-  input logic signed [7:0] B [2][2],
+  input logic signed [15:0] A [2][2],
+  input logic signed [15:0] B [2][2],
   output logic signed [31:0] C_ref [2][2]
 );
     

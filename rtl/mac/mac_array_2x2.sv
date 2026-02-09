@@ -12,7 +12,7 @@ module mac_array_2x2 #(
     output logic signed [ACC_W-1:0]   acc[2][2]
 );
     
-    mac mac00(
+    mac #(.DATA_W(DATA_W), .ACC_W(ACC_W)) mac00 (
         .clk(clk),
         .rst_n(rst_n),
         .en(en),
@@ -22,7 +22,7 @@ module mac_array_2x2 #(
         .acc(acc[0][0])
     );
 
-    mac mac01(
+    mac #(.DATA_W(DATA_W), .ACC_W(ACC_W)) mac01(
         .clk(clk),
         .rst_n(rst_n),
         .en(en),
@@ -32,7 +32,7 @@ module mac_array_2x2 #(
         .acc(acc[0][1])
     );
 
-    mac mac10(
+    mac #(.DATA_W(DATA_W), .ACC_W(ACC_W)) mac10(
         .clk(clk),
         .rst_n(rst_n),
         .en(en),
@@ -42,7 +42,7 @@ module mac_array_2x2 #(
         .acc(acc[1][0])
     );
 
-    mac mac11(
+    mac #(.DATA_W(DATA_W), .ACC_W(ACC_W)) mac11(
         .clk(clk),
         .rst_n(rst_n),
         .en(en),
