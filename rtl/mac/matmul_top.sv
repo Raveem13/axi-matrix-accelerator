@@ -2,7 +2,7 @@ module matmul_top #(
     // Parameters with default values
     parameter DATA_W = 16,
     parameter ACC_W = 32,
-    parameter int K = 2,
+    parameter K = 5,
     parameter M = 2,
     parameter N = 2
 )(
