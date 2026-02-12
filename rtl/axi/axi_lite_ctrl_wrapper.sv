@@ -19,10 +19,17 @@ module axi_lite_ctrl_wrapper #(
 
     output   logic s_axi_bvalid,
     output   logic [1:0] s_axi_bresp,
-    input   logic s_axi_bready
+    input   logic s_axi_bready,
 
     // ----Read----
+    input  logic [ADDR_W-1:0]    s_axi_araddr,
+    input  logic       s_axi_arvalid,
+    output logic       s_axi_arready,
 
+    output logic [DATA_W-1:0]    s_axi_rdata,
+    output logic [1:0] s_axi_rresp,
+    output logic       s_axi_rvalid,
+    input  logic       s_axi_rready
     // ========================
 
     // ========================
@@ -40,9 +47,9 @@ module axi_lite_ctrl_wrapper #(
     logic ctrl_start;
     logic start_pulse;
 
-    logic write_fire, write_ok;
+    logic write_fire, write_ok, read_ok;
 
-    logic aw_hs, w_hs;
+    logic aw_hs, w_hs, ar_hs;
 
     logic [DATA_W-1:0] read_data;
 
@@ -56,6 +63,8 @@ module axi_lite_ctrl_wrapper #(
                     (s_axi_awaddr == 32'h08) ||
                     (s_axi_awaddr == 32'h0C) ||
                     (s_axi_awaddr == 32'h10);
+
+        ar_hs = s_axi_arvalid &&  s_axi_arready;
     end
     
 
@@ -129,5 +138,65 @@ module axi_lite_ctrl_wrapper #(
     // --------------
 
     // ----Read FSM----
+    // Read data mux
+    always_comb begin
+        read_data = 32'd0;
+        read_ok   = 1'b1;
+
+        case (s_axi_araddr[5:2])
+            4'h0: read_data = ctrl_reg;
+            4'h1: read_data = status_reg;
+            4'h2: read_data = cfg_m_reg;
+            4'h3: read_data = cfg_k_reg;
+            4'h4: read_data = cfg_n_reg;
+            default: begin
+            read_data = 32'd0;
+            read_ok   = 1'b0;
+            end
+        endcase
+    end
+
+    // Read FSM
+    typedef enum logic {
+        R_IDLE,
+        R_DATA
+    } rstate_t;
+
+    rstate_t rstate, next_rstate;
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            rstate <= R_IDLE;
+        else
+            rstate <= next_rstate;
+    end
+
+    always_comb begin
+    // defaults
+        s_axi_arready = 0;
+        s_axi_rvalid  = 0;
+        s_axi_rdata   = 32'd0;
+        s_axi_rresp   = 2'b00;
+        next_rstate      = rstate;
+
+        case (rstate)
+            R_IDLE: begin
+                s_axi_arready = 1;
+                if (ar_hs) begin
+                    s_axi_rdata = read_data;
+                    s_axi_rresp = read_ok ? 2'b00 : 2'b10;
+                    next_rstate = R_DATA;
+                end
+            end
+
+            R_DATA: begin
+                s_axi_rvalid = 1;
+                if (s_axi_rready) begin
+                    next_rstate = R_IDLE;
+                end
+            end
+        endcase
+    end
+
 
 endmodule
