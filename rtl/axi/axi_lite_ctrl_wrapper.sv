@@ -29,12 +29,17 @@ module axi_lite_ctrl_wrapper #(
     output logic [DATA_W-1:0]    s_axi_rdata,
     output logic [1:0] s_axi_rresp,
     output logic       s_axi_rvalid,
-    input  logic       s_axi_rready
+    input  logic       s_axi_rready,
     // ========================
 
     // ========================
     // Compute core interface
+    output logic [31:0]  cfg_m,
+    output logic [31:0]  cfg_k,
+    output logic [31:0]  cfg_n,
 
+    output logic    start,
+    input  logic    done
     // ========================    
 
 );
@@ -44,7 +49,6 @@ module axi_lite_ctrl_wrapper #(
     logic [DATA_W-1:0] cfg_n_reg;
     logic [DATA_W-1:0] cfg_k_reg;
 
-    logic ctrl_start;
     logic start_pulse;
 
     logic write_fire, write_ok, read_ok;
@@ -198,5 +202,31 @@ module axi_lite_ctrl_wrapper #(
         endcase
     end
 
+    //----MAC/Compute core controls----
+    assign cfg_m = cfg_m_reg;
+    assign cfg_k = cfg_k_reg;
+    assign cfg_n = cfg_n_reg;
+
+    // Start pulse logic
+    logic ctrl_start;
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            ctrl_start <= 1'b0;
+        else
+            ctrl_start <= ctrl_reg[0];
+    end
+
+    assign start = ctrl_reg[0] & ~ctrl_start;
+
+    // STATUS logic
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            status_reg <= 32'd0;
+        else if (start)
+            status_reg[0] <= 1'b0;   // clear on new start
+        else if (done)
+            status_reg[0] <= 1'b1;   // latch completion
+    end
 
 endmodule
