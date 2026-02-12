@@ -31,9 +31,11 @@ module axi_lite_ctrl_wrapper #(
     // ========================    
 
 );
-    logic [DATA_W-1:0] ctrl;
-    logic [DATA_W-1:0] status;
-    logic cfg_m, cfg_n, cfg_k;
+    logic [DATA_W-1:0] ctrl_reg;
+    logic [DATA_W-1:0] status_reg;
+    logic [DATA_W-1:0] cfg_m_reg;
+    logic [DATA_W-1:0] cfg_n_reg;
+    logic [DATA_W-1:0] cfg_k_reg;
 
     logic ctrl_start;
     logic start_pulse;
@@ -61,18 +63,18 @@ module axi_lite_ctrl_wrapper #(
     // Write data MUX
     always @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
-            ctrl    <= 32'd0;
-            cfg_m   <= 32'd0;
-            cfg_n   <= 32'd0;
-            cfg_k   <= 32'd0;
+            ctrl_reg    <= 32'd0;
+            cfg_m_reg   <= 32'd0;
+            cfg_n_reg   <= 32'd0;
+            cfg_k_reg   <= 32'd0;
             // start = 0;
         end
         else if (aw_hs && w_hs) begin
             case (s_axi_awaddr[7:0])
-                8'h00   : ctrl <= s_axi_wdata;
-                8'h08   : cfg_m <= s_axi_wdata;
-                8'h0C   : cfg_k <= s_axi_wdata;
-                8'h10   : cfg_n <= s_axi_wdata;
+                8'h00   : ctrl_reg <= s_axi_wdata;
+                8'h08   : cfg_m_reg <= s_axi_wdata;
+                8'h0C   : cfg_k_reg <= s_axi_wdata;
+                8'h10   : cfg_n_reg <= s_axi_wdata;
                 default : s_axi_bresp <= 2'b10;
             endcase
         end
