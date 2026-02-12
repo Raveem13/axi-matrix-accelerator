@@ -1,0 +1,159 @@
+module compute_wrapper #(
+    parameter DATA_W = 32,
+    parameter K_MAX =   2
+) (
+    input logic clk,
+    input logic rst_n,
+
+    // AXI-Stream A
+    input logic [DATA_W-1:0] s_axis_a_tdata,
+    input logic             s_axis_a_tvalid,
+    output logic            s_axis_a_tready,
+    input logic             s_axis_a_tlast,
+
+    // AXI-Stream B
+    input logic [DATA_W-1:0] s_axis_b_tdata,
+    input logic             s_axis_b_tvalid,
+    output logic            s_axis_b_tready,
+    input logic             s_axis_b_tlast,
+
+    // AXI-Stream C
+    output logic [DATA_W-1:0] m_axis_c_tdata,
+    output logic             m_axis_c_tvalid,
+    input logic             m_axis_c_tready,
+    output logic             m_axis_c_tlast,
+
+    // Control
+    input logic     cfg_k,
+    input logic     start,
+    output logic    done
+
+);
+    // Buffers
+    logic [DATA_W-1:0] A_buf [2][K_MAX];
+    logic [DATA_W-1:0] B_buf [K_MAX][2];
+
+    // Counter
+    logic [$clog2(K_MAX):0] k_cnt;
+    logic [$clog2(K_MAX):0] a_cnt;
+    logic [$clog2(K_MAX):0] b_cnt;
+    logic [2:0] c_cnt;
+
+
+    // fsm states
+    typedef enum logic [2:0] {
+        IDLE,
+        LOAD_A,
+        LOAD_B,
+        PREPARE,
+        COMPUTE,
+        OUTPUT,
+        DONE
+    } state_t;
+
+    state_t state, next_state;
+
+    // Seq. logic
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            state <= IDLE;
+        end else begin
+            state <= next_state;
+        end
+    end
+
+    // Comb. Logic
+    always_comb begin
+        s_axis_a_tready =   0;
+        s_axis_b_tready =   0;
+
+        m_axis_c_tvalid =   0;
+        m_axis_c_tlast  =   0;
+
+        done    =   0;
+
+        next_state = state;
+
+        case (state)
+            IDLE    :   begin
+                if (start)
+                    next_state = LOAD_A;
+            end
+
+            LOAD_A  :   begin
+                s_axis_a_tready = 1;
+                if (s_axis_a_tvalid && s_axis_a_tready && s_axis_a_tlast)
+                    next_state = LOAD_B;
+            end
+
+            LOAD_B  :   begin
+                s_axis_a_tready = 0;
+                s_axis_b_tready = 1;
+                if (s_axis_b_tvalid && s_axis_b_tready && s_axis_b_tlast)
+                    next_state = PREPARE;
+            end
+
+            PREPARE :   begin
+                next_state = COMPUTE;
+            end
+
+            COMPUTE :   begin
+                if (k_cnt == cfg_k-1)
+                    next_state = OUTPUT;
+            end
+
+            OUTPUT  :   begin
+                m_axis_c_tvalid =   1;
+                if (m_axis_c_tready &&  m_axis_c_tvalid && c_cnt == 3) begin
+                    m_axis_c_tlast  =   1;
+                    next_state = DONE;
+                end
+            end
+
+            DONE    :   begin
+                done    =   1;
+                if (!start)
+                    next_state = IDLE;
+            end
+            
+        endcase
+
+
+    end
+
+    // Counter Logic
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            a_cnt <= 0;
+            b_cnt <= 0;
+            c_cnt <= 0;
+            k_cnt <= 0;
+        end else begin
+            case (state)
+                
+                LOAD_A  : 
+                    if (s_axis_a_tvalid && s_axis_a_tready)
+                        a_cnt <= a_cnt + 1;
+                
+                LOAD_B  :
+                    if (s_axis_b_tvalid && s_axis_b_tready)
+                        b_cnt <= b_cnt + 1;
+                
+                COMPUTE :
+                    k_cnt   <=  k_cnt + 1; 
+                
+                OUTPUT  :
+                    if (m_axis_c_tvalid && m_axis_c_tready)
+                        c_cnt <= c_cnt + 1;
+
+                default: begin
+                    a_cnt <= 0;
+                    b_cnt <= 0;
+                    c_cnt <= 0;
+                    k_cnt <= 0;
+                end
+            endcase
+        end
+    end
+
+endmodule
