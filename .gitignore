@@ -2,7 +2,7 @@
 Todo/
 
 # Documents & Images
-doc/
+doc/*.md
 
 # Scripts
 *.sh
