@@ -1,11 +1,14 @@
 # My files
 Todo/
-*.f
+
+# Documents & Images
+doc/
 
 # Scripts
 *.sh
 *.bat
 *.tcl
+*.f
 
 # =========================
 # Vivado / XSIM generated
