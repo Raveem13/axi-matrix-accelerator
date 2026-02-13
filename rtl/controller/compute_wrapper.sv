@@ -156,4 +156,24 @@ module compute_wrapper #(
         end
     end
 
+    // assertions
+    // No data accepted outside LOAD states
+    assert property (@(posedge clk)
+        (s_axis_a_tvalid && s_axis_a_tready) |-> state == LOAD_A);
+
+    assert property (@(posedge clk)
+        (s_axis_b_tvalid && s_axis_b_tready) |-> state == LOAD_B);
+
+    // Compute runs exactly K cycles
+    assert property (@(posedge clk)
+        (state == COMPUTE) |-> k_cnt < cfg_k);
+
+    // Output always exactly 4 beats
+    assert property (@(posedge clk)
+        state == OUTPUT |-> c_cnt < 4);
+
+    // done only asserted in DONE state
+    assert property (@(posedge clk)
+        done |=> state == DONE);
+
 endmodule
