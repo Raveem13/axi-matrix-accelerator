@@ -32,13 +32,19 @@ module compute_wrapper #(
     // Buffers
     logic [DATA_W-1:0] A_buf [2][K_MAX];
     logic [DATA_W-1:0] B_buf [K_MAX][2];
+    logic [DATA_W-1:0] C_buf [2][2];
+
 
     // Counter
     logic [$clog2(K_MAX):0] k_cnt;
     logic [$clog2(K_MAX):0] a_cnt;
     logic [$clog2(K_MAX):0] b_cnt;
     logic [2:0] c_cnt;
-
+    
+    // Holding C data stable, register the output
+    logic [DATA_W-1:0] c_data_reg;
+    logic              c_valid_reg;
+    logic              c_last_reg;
 
     // fsm states
     typedef enum logic [2:0] {
@@ -156,6 +162,27 @@ module compute_wrapper #(
         end
     end
 
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            c_data_reg  <= '0;
+            c_valid_reg <= 0;
+            c_last_reg  <= 0;
+        end else begin
+            if (state == OUTPUT && !c_valid_reg) begin
+                c_data_reg  <= C_buf[0][0];     //Place holder or MAC result
+                c_valid_reg <= 1;
+                c_last_reg  <= (c_cnt == 3);
+            end 
+            else if (c_valid_reg && m_axis_c_tready) begin
+                c_valid_reg <= 0; 
+            end
+        end
+    end
+
+    assign m_axis_c_tdata   = c_data_reg;
+    assign m_axis_c_tvalid  = c_valid_reg;
+    assign m_axis_c_tlast   = c_last_reg;
+
     // assertions
     // No data accepted outside LOAD states
     assert property (@(posedge clk)
@@ -175,5 +202,28 @@ module compute_wrapper #(
     // done only asserted in DONE state
     assert property (@(posedge clk)
         done |=> state == DONE);
+
+    // Backpressure-aware assertions
+    // Data must remain stable while stalled
+    assert property (@(posedge clk)
+        m_axis_c_tvalid && !m_axis_c_tready |->
+        $stable(m_axis_c_tdata) && $stable(m_axis_c_tlast)
+    );
+
+    // Counters only move on handshake
+    assert property (@(posedge clk)
+        (state == OUTPUT) && !(m_axis_c_tvalid && m_axis_c_tready) |->
+        $stable(c_cnt)
+    );
+
+    // Exactly one tlast per burst
+    assert property (@(posedge clk)
+        m_axis_c_tlast |-> (state == OUTPUT && c_cnt == 3)
+    );
+
+    // No output without start / No output outside OUTPUT state
+    assert property (@(posedge clk)
+        m_axis_c_tvalid |-> state == OUTPUT
+    );
 
 endmodule
