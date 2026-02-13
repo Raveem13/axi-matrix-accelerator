@@ -46,6 +46,14 @@ module compute_wrapper #(
     logic              c_valid_reg;
     logic              c_last_reg;
 
+    logic compute_done;     // computation + output fully complete
+    logic done_pulse;       // single-cycle event
+
+    logic done_reg;         // sticky status bit
+    logic irq;              // optional interrupt output
+
+    logic sw_clear_done;    // To do : place holder driven by AXI-Lite control reg
+
     // fsm states
     typedef enum logic [2:0] {
         IDLE,
@@ -183,6 +191,35 @@ module compute_wrapper #(
     assign m_axis_c_tvalid  = c_valid_reg;
     assign m_axis_c_tlast   = c_last_reg;
 
+    // Done pulse generation
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            done_pulse <= 0;
+        else
+            done_pulse <= (state == OUTPUT) && m_axis_c_tvalid && m_axis_c_tready && m_axis_c_tlast;
+    end
+
+    // DONE status register (AXI-Lite visible)
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            done_reg <= 1'b0;
+        end else if (done_pulse) begin
+            done_reg <= 1'b1;
+        end else if (sw_clear_done) begin
+            done_reg <= 1'b0;
+        end
+    end
+
+    // Interrupt signaling
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            irq <= 1'b0;
+        else
+            irq <= done_pulse;
+    end
+
+
+
     // assertions
     // No data accepted outside LOAD states
     assert property (@(posedge clk)
@@ -224,6 +261,17 @@ module compute_wrapper #(
     // No output without start / No output outside OUTPUT state
     assert property (@(posedge clk)
         m_axis_c_tvalid |-> state == OUTPUT
+    );
+
+    // done software signalling assertions 
+    // DONE only on final output handshake
+    assert property (@(posedge clk)
+        done_pulse |-> (m_axis_c_tvalid && m_axis_c_tready && m_axis_c_tlast)
+    );
+
+    // DONE cannot assert twice without software clear
+    assert property (@(posedge clk)
+        done_reg && !sw_clear_done |-> !done_pulse
     );
 
 endmodule
