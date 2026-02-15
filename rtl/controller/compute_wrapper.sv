@@ -46,6 +46,14 @@ module compute_wrapper #(
     logic              c_valid_reg;
     logic              c_last_reg;
 
+    logic compute_done;     // computation + output fully complete
+    logic done_pulse;       // single-cycle event
+
+    logic done_reg;         // sticky status bit
+    logic irq;              // optional interrupt output
+
+    logic sw_clear_done = 0;    // To do : place holder driven by AXI-Lite control reg
+
     // fsm states
     typedef enum logic [2:0] {
         IDLE,
@@ -76,7 +84,7 @@ module compute_wrapper #(
         // c_valid_reg =   0;
         // c_last_reg  =   0;
 
-        done    =   0;
+        // done    =   0;
 
         next_state = state;
 
@@ -117,7 +125,7 @@ module compute_wrapper #(
             end
 
             DONE    :   begin
-                done    =   1;
+                // done    =   1;
                 if (!start)
                     next_state = IDLE;
             end
@@ -180,6 +188,7 @@ module compute_wrapper #(
             end
             // $display("%0t count_c = %0d, %S, c_valid =%0d, c_ready =%0d", $time, c_cnt, state.name(), c_valid_reg, m_axis_c_tready);
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tdata = %0d, c_tlast=%0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tdata, m_axis_c_tlast);
+            $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, done_pulse = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, done_pulse, done_reg);
 
         end
     end
@@ -187,6 +196,35 @@ module compute_wrapper #(
     assign m_axis_c_tdata   = c_data_reg;
     assign m_axis_c_tvalid  = c_valid_reg;
     assign m_axis_c_tlast   = c_last_reg;
+
+    // Done pulse generation
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            done_pulse <= 0;
+        else
+            done_pulse <= (state == OUTPUT) && m_axis_c_tvalid && m_axis_c_tready && m_axis_c_tlast;
+    end
+
+    // DONE status register (AXI-Lite visible)
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            done_reg <= 1'b0;
+        end else if (done_pulse) begin
+            done_reg <= 1'b1;
+        end else if (sw_clear_done) begin
+            done_reg <= 1'b0;
+        end
+    end
+
+    assign done = done_reg;
+    
+    // Interrupt signaling
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            irq <= 1'b0;
+        else
+            irq <= done_pulse;
+    end
 
     // assertions
     // No data accepted outside LOAD states
@@ -266,5 +304,30 @@ module compute_wrapper #(
         $fell(m_axis_c_tvalid) |-> $past(m_axis_c_tready)
     )
     else $fatal(1, "TVALID dropped without handshake");
+
+    //----done software signalling assertions---- 
+    // DONE only on final output handshake
+    assert property (@(posedge clk)
+        done_pulse |-> $past(m_axis_c_tvalid && m_axis_c_tready && m_axis_c_tlast)
+    )
+    else $fatal(1, "done without handshake");
+
+    // DONE cannot assert twice without software clear
+    assert property (@(posedge clk)
+        done_reg && !sw_clear_done |-> !done_pulse
+    )
+    else $fatal(1, "done re-fire without software clear");
+
+    // Done sticky until cleared by software
+    assert property (@(posedge clk)
+        done_reg && !sw_clear_done |=> done_reg
+    ) 
+    else $fatal(1, "done not sticky");
+
+    // IRQ pulsed only on done (if enabled)
+    assert property (@(posedge clk)
+        irq |-> $past(done_pulse)
+    )
+    else  $fatal(1, "IRQ on not done");
 
 endmodule
