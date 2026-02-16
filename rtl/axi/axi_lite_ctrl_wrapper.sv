@@ -51,7 +51,7 @@ module axi_lite_ctrl_wrapper #(
 
     logic start_pulse;
 
-    logic write_fire, write_ok, read_ok;
+    bit write_fire, write_ok, read_ok;
 
     logic aw_hs, w_hs, ar_hs;
 
@@ -88,7 +88,6 @@ module axi_lite_ctrl_wrapper #(
                 8'h08   : cfg_m_reg <= s_axi_wdata;
                 8'h0C   : cfg_k_reg <= s_axi_wdata;
                 8'h10   : cfg_n_reg <= s_axi_wdata;
-                default : s_axi_bresp <= 2'b10;
             endcase
         end
     end
@@ -106,6 +105,8 @@ module axi_lite_ctrl_wrapper #(
         if (!rst_n) begin
             wstate <= W_IDLE;
         end else begin
+            // $display("%t [DUT] state = %s, data = %0d @ address = %h, BRESP = %02b, BVALID = %0d",
+            //         $time, wstate.name(), s_axi_wdata, s_axi_awaddr, s_axi_bresp, s_axi_bvalid);
             wstate <= next_wstate;
         end
     end
@@ -115,8 +116,6 @@ module axi_lite_ctrl_wrapper #(
         s_axi_awready   =   0;   
         s_axi_wready    =   0;    
         s_axi_bvalid    =   0;   
-        s_axi_bresp     =   2'b00;
-        write_fire      =   0;
 
         next_wstate     = wstate;
 
@@ -125,8 +124,6 @@ module axi_lite_ctrl_wrapper #(
                 s_axi_awready   = 1;   
                 s_axi_wready    = 1;  
                 if (aw_hs && w_hs) begin
-                    write_fire  = 1;
-                    s_axi_bresp <= write_ok ? 2'b00 : 2'b10;
                     next_wstate = W_RESP;
                 end
             end
@@ -139,6 +136,19 @@ module axi_lite_ctrl_wrapper #(
             end
         endcase
     end
+
+    logic [1:0] bresp_reg;
+
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            bresp_reg   <= 2'b0;
+        end
+        else if (write_fire) begin
+            bresp_reg   <= write_ok ? 2'b00 : 2'b10;
+        end
+    end
+
+    assign s_axi_bresp = bresp_reg;
     // --------------
 
     // ----Read FSM----
