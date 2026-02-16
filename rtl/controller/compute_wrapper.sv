@@ -188,7 +188,7 @@ module compute_wrapper #(
             end
             // $display("%0t count_c = %0d, %S, c_valid =%0d, c_ready =%0d", $time, c_cnt, state.name(), c_valid_reg, m_axis_c_tready);
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tdata = %0d, c_tlast=%0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tdata, m_axis_c_tlast);
-            $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, done_pulse = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, done_pulse, done_reg);
+            // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, done_pulse = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, done_pulse, done_reg);
 
         end
     end
@@ -247,10 +247,6 @@ module compute_wrapper #(
         state == OUTPUT |-> c_cnt < 4)
         else $fatal("assert fail: Output >4 beats");
 
-    // // done only asserted in DONE state
-    // assert property (@(posedge clk)
-    //     done |=> state == DONE)
-    //     else $fatal("assert fail: 'done' asserted not in DONE");
 
     // Backpressure-aware assertions
     // Data must remain stable while stalled
@@ -290,7 +286,8 @@ module compute_wrapper #(
     assert property (@(posedge clk)
         disable iff (!rst_n)
         $rose(m_axis_c_tvalid) |-> !$past(m_axis_c_tready) || 1'b1
-    );
+    )
+    else $fatal(1, "C_valid depends on C_ready");
 
     // LAST only valid with VALID
     assert property (@(posedge clk)
@@ -310,9 +307,10 @@ module compute_wrapper #(
     assert property (@(posedge clk)
         done_pulse |-> $past(m_axis_c_tvalid && m_axis_c_tready && m_axis_c_tlast)
     )
-    else $fatal(1, "done without handshake");
+    else $fatal(1, "done without final handshake");
 
     // DONE cannot assert twice without software clear
+    // Valid until AXI-Lite clear is integrated
     assert property (@(posedge clk)
         done_reg && !sw_clear_done |-> !done_pulse
     )
@@ -328,6 +326,32 @@ module compute_wrapper #(
     assert property (@(posedge clk)
         irq |-> $past(done_pulse)
     )
-    else  $fatal(1, "IRQ on not done");
+    else $fatal(1, "IRQ on not done");
+
+    // done_pulse is exactly one cycle
+    assert property (@(posedge clk)
+        disable iff (!rst_n)
+        done_pulse |-> !$past(done_pulse)
+    ) 
+    else $fatal(1, "done_pulse wider than 1 cycle");
+    
+    //(OR) assert property (@(posedge clk)
+    //     $rose(done_pulse) |-> ##1 !done_pulse
+    // )
+    // else $fatal(1, "DONE is not single-cycle pulse");
+
+    // done_reg must latch after done_pulse
+    assert property (@(posedge clk)
+        disable iff (!rst_n)
+        $rose(done_pulse) |=> done
+    ) 
+    else $fatal(1, "done_reg not set after done_pulse");
+
+    // Done pulse from OUTPUT state only 
+    assert property (@(posedge clk)
+        disable iff (!rst_n)
+       done_pulse |-> $past(state == OUTPUT)
+    ) 
+    else $fatal(1, "done_pulse not generated from OUTPUT state");
 
 endmodule

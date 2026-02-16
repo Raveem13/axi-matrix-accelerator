@@ -130,9 +130,8 @@ module comp_wrapper_tb15_doneIntr;
         assert (dut.done_pulse == 1);
 
         // Observe OUTPUT activity
-        // $display("waiting for OUTPUT state");
-        wait (done);   // OUTPUT state = 6
-
+        // $display("waiting for OUTPUT state"); // OUTPUT state = 6
+        wait (done);   
         $display("TB13 PASS: FSM skeleton exercised");
 
         // Final checks: beat
@@ -157,6 +156,9 @@ module comp_wrapper_tb15_doneIntr;
             else $fatal("no done pulse");
 
         // Clear DONE using direct signal (temporary TB control)
+        // NOTE: Temporary TB-only hook.
+        // SW clear will be verified later via AXI-Lite.
+        // This is NOT architectural behavior yet.
         dut.sw_clear_done <= 1;
         @(posedge clk);
         dut.sw_clear_done <= 0;
