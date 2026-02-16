@@ -354,4 +354,9 @@ module compute_wrapper #(
     ) 
     else $fatal(1, "done_pulse not generated from OUTPUT state");
 
+    assert property (@(posedge clk)
+        state != IDLE && start |-> state != LOAD_A
+    )
+    else $fatal(1, "FSM restarted while busy");
+    
 endmodule
