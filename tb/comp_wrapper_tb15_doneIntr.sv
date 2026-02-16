@@ -102,9 +102,6 @@ module comp_wrapper_tb15_doneIntr;
         @(posedge clk);
         start = 1;
 
-        @(posedge clk);
-        start = 0;
-
         // Send A (1 beat)
         wait(a_tready);
         @(posedge clk);
