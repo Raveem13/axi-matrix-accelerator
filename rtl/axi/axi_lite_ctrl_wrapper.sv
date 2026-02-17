@@ -246,14 +246,48 @@ module axi_lite_ctrl_wrapper #(
     // STATUS logic
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n)
-            status_reg <= 32'd0;
-        else if (start) begin
+            status_reg      <= 32'd0;
+        else if (start)
             status_reg[0]   <= 1'b0;    // clear on new start
-            
-        end
         else if (done)
-            status_reg[0] <= 1'b1;      // latch completion
-        $display("%t start = %0d , ctrl_start = %0d, status[0] = %0d, control[0] = %0d",  $time, start, ctrl_start, status_reg[0], ctrl_reg[0]);    
+            status_reg[0]   <= 1'b1;      // latch completion
+        // $display("%t start = %0d , done = %0d, ctrl_start = %0d, status[0] = %0d, control[0] = %0d",  $time, start, done, ctrl_start, status_reg[0], ctrl_reg[0]);    
     end
+
+`ifndef SYNTHESIS
+
+// A. Start is one-cycle pulse
+assert property (@(posedge clk)
+    start |-> ##1 !start
+) 
+else $fatal("start not single-cycle");
+
+// B. Start only from CTRL write
+assert property (@(posedge clk)
+    start |-> $past(write_fire && s_axi_awaddr == 32'h00)
+) 
+else $fatal("START without CTRL write");
+
+// C. STATUS latches done
+assert property (@(posedge clk)
+    done |=> status_reg[0] 
+) 
+else $fatal("STATUS did not latch DONE");
+
+// D. STATUS clears on new start
+assert property (@(posedge clk)
+    start |=> !status_reg[0] 
+) 
+else $fatal("STATUS not cleared on new start");
+
+
+// E. AXI write response eventually completes
+assert property (@(posedge clk)
+    write_fire |-> ##[1:5] s_axi_bvalid
+) 
+else $fatal("No BRESP after write");
+
+
+`endif
 
 endmodule

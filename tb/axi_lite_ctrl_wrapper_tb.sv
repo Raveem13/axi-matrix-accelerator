@@ -91,6 +91,11 @@ module axi_lite_ctrl_wrapper_tb #(
         wvalid  = 0;
         bready  = 0;
 
+        arvalid = 0;
+        rready  = 0;
+
+        done    = 0;
+
         repeat(2) @(posedge clk);
         rst_n   = 1;
 
