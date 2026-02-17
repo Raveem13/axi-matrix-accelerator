@@ -146,6 +146,7 @@ module axi_lite_ctrl_wrapper #(
         else if (write_fire) begin
             bresp_reg   <= write_ok ? 2'b00 : 2'b10;
         end
+        // $display("%t [%s] start = %0d , status[0] = %0d, control[0] = %0d",  $time, wstate.name(), start, status_reg[0], ctrl_reg[0]);    
     end
 
     assign s_axi_bresp = bresp_reg;
@@ -218,6 +219,7 @@ module axi_lite_ctrl_wrapper #(
             rresp_reg   = read_ok ? 2'b00 : 2'b10;
             s_axi_rdata = read_data;
         end
+        // $display("%t [%s] start = %0d , status[0] = %0d, control[0] = %0d",  $time, rstate.name(), start, status_reg[0], ctrl_reg[0]);    
     end
 
     assign s_axi_rresp = rresp_reg;
@@ -231,9 +233,12 @@ module axi_lite_ctrl_wrapper #(
 
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n)
-            ctrl_start <= 1'b0;
+            ctrl_start  <= 1'b0;
+        else if (start)
+            // CTRL[0] is self-clearing START bit (write 1 to trigger)
+            ctrl_reg[0] <= 1'b0;    // 1'b0;    
         else
-            ctrl_start <= ctrl_reg[0];
+            ctrl_start  <= ctrl_reg[0];
     end
 
     assign start = ctrl_reg[0] & ~ctrl_start;
@@ -242,10 +247,13 @@ module axi_lite_ctrl_wrapper #(
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n)
             status_reg <= 32'd0;
-        else if (start)
-            status_reg[0] <= 1'b0;   // clear on new start
+        else if (start) begin
+            status_reg[0]   <= 1'b0;    // clear on new start
+            
+        end
         else if (done)
-            status_reg[0] <= 1'b1;   // latch completion
+            status_reg[0] <= 1'b1;      // latch completion
+        $display("%t start = %0d , ctrl_start = %0d, status[0] = %0d, control[0] = %0d",  $time, start, ctrl_start, status_reg[0], ctrl_reg[0]);    
     end
 
 endmodule
