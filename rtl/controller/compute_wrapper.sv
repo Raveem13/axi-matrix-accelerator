@@ -188,7 +188,8 @@ module compute_wrapper #(
             end
             // $display("%0t count_c = %0d, %S, c_valid =%0d, c_ready =%0d", $time, c_cnt, state.name(), c_valid_reg, m_axis_c_tready);
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tdata = %0d, c_tlast=%0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tdata, m_axis_c_tlast);
-            // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, done_pulse = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, done_pulse, done_reg);
+            // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, done_pulse = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, done_pulse, done);
+            // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, start = %0d, done_pulse = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, start, done_pulse);
 
         end
     end
@@ -354,4 +355,9 @@ module compute_wrapper #(
     ) 
     else $fatal(1, "done_pulse not generated from OUTPUT state");
 
+    assert property (@(posedge clk)
+        state != IDLE && start |-> next_state != IDLE
+    )
+    else $fatal(1, "FSM returned to IDLE due to start misuse");
+    
 endmodule
