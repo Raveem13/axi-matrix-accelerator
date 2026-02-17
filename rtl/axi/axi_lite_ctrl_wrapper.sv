@@ -157,12 +157,12 @@ module axi_lite_ctrl_wrapper #(
         read_data = 32'd0;
         read_ok   = 1'b1;
 
-        case (s_axi_araddr[5:2])
-            4'h0: read_data = ctrl_reg;
-            4'h1: read_data = status_reg;
-            4'h2: read_data = cfg_m_reg;
-            4'h3: read_data = cfg_k_reg;
-            4'h4: read_data = cfg_n_reg;
+        case (s_axi_araddr[7:0])
+            8'h00: read_data = ctrl_reg;
+            8'h04: read_data = status_reg;
+            8'h08: read_data = cfg_m_reg;
+            8'h0C: read_data = cfg_k_reg;
+            8'h10: read_data = cfg_n_reg;
             default: begin
             read_data = 32'd0;
             read_ok   = 1'b0;
@@ -189,16 +189,12 @@ module axi_lite_ctrl_wrapper #(
     // defaults
         s_axi_arready = 0;
         s_axi_rvalid  = 0;
-        s_axi_rdata   = 32'd0;
-        s_axi_rresp   = 2'b00;
         next_rstate      = rstate;
 
         case (rstate)
             R_IDLE: begin
                 s_axi_arready = 1;
                 if (ar_hs) begin
-                    s_axi_rdata = read_data;
-                    s_axi_rresp = read_ok ? 2'b00 : 2'b10;
                     next_rstate = R_DATA;
                 end
             end
@@ -212,6 +208,19 @@ module axi_lite_ctrl_wrapper #(
         endcase
     end
 
+    logic [1:0] rresp_reg;
+    always_ff @(posedge clk or negedge rst_n) begin
+        if (!rst_n) begin
+            rresp_reg   = 2'b0;
+            s_axi_rdata = 32'd0;
+        end
+        else if (ar_hs) begin
+            rresp_reg   = read_ok ? 2'b00 : 2'b10;
+            s_axi_rdata = read_data;
+        end
+    end
+
+    assign s_axi_rresp = rresp_reg;
     //----MAC/Compute core controls----
     assign cfg_m = cfg_m_reg;
     assign cfg_k = cfg_k_reg;

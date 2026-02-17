@@ -92,15 +92,20 @@ module axi_lite_ctrl_wrapper_tb #(
         repeat(2) @(posedge clk);
         rst_n   = 1;
 
-        write_data(32'h08, 32'd4);      // config m
-        write_data(32'h0C, 32'd5);      // config n
-        write_data(32'h10, 32'd6);      // config k
-        write_data(32'h0A, 32'd7);
+        write_data(32'h08, 32'd4);      // write config m
+        write_data(32'h0C, 32'd5);      // write config n
+        write_data(32'h10, 32'd6);      // write config k
+        write_data(32'h0A, 32'd7);      // write invalid address
 
         // $display("BRESP : %02b", bresp);
         assert(dut.cfg_m == 32'd4);
         assert(dut.cfg_k == 32'd5);
         assert(dut.cfg_n == 32'd6);
+
+        read_data(32'h08);              // read config m
+        read_data(32'h0C);              // read config n
+        read_data(32'h10);              // read config n
+        read_data(32'h0A);              // write invalid address
 
         #40;
         $finish;
@@ -125,6 +130,28 @@ module axi_lite_ctrl_wrapper_tb #(
         // Complete response
         bready  = 1;
         @(posedge clk);
+        bready  = 0;
+
+    endtask //automatic
+
+    task automatic read_data(logic [ADDR_W-1:0] r_addr);
+        // Drive address 
+        araddr  = r_addr;
+        arvalid =  1;
+
+        // Wait for handshake
+        wait (arready);
+        @(posedge clk);
+
+        // Wait for response
+        wait (rvalid);
+        $display("%t [Test] Reading @ address = %h, data = %0d RRESP = %02b",
+                    $time, r_addr, rdata, rresp);
+
+        // Complete response
+        rready  = 1;
+        @(posedge clk);
+        rready  = 0;
 
     endtask //automatic
 endmodule
