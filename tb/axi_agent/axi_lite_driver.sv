@@ -49,7 +49,7 @@ class axi_lite_driver extends uvm_driver #(axi_lite_item);
         vif.AWVALID <= 1;
 
         // Data channel
-        vif.WADDR   <= tr.data;
+        vif.WDATA   <= tr.data;
         vif.WSTRB  <= 4'hF;
         vif.WVALID  <= 1;
 

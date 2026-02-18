@@ -1,7 +1,7 @@
 class axi_lite_monitor extends uvm_monitor;
     `uvm_component_utils(axi_lite_monitor)
 
-    virtual axi_lite_item vif;
+    virtual axi_lite_if vif;
     uvm_analysis_port #(axi_lite_item) ap;
     
     bit [31:0] awaddr_q;
