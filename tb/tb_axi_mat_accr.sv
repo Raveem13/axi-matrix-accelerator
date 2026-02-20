@@ -217,7 +217,7 @@ module tb_axi_mat_accr;
         // $display("tready=1? = %d", s_axis_a_tready);
         for (int i=0; i<beats; ++i) begin
             @(posedge clk);
-            $display("Loading beat A[%0d]", i);
+            $display("[Test] Loading beat A[%0d] = %0d", i, i);
             s_axis_a_tvalid  = 1;
             s_axis_a_tdata   = i;
             s_axis_a_tlast   = (i == beats-1);
@@ -234,7 +234,7 @@ module tb_axi_mat_accr;
         wait(s_axis_b_tready);
         for (int i=0; i<beats; ++i) begin
             @(posedge clk);
-            $display("Loading beat B[%0d]", i);
+            $display("[Test] Loading beat B[%0d] = %0d", i, i);
             s_axis_b_tvalid  = 1;
             s_axis_b_tdata   = i;
             s_axis_b_tlast   = (i == beats-1);

@@ -1,6 +1,6 @@
 module compute_wrapper #(
     parameter DATA_W = 32,
-    parameter K_MAX =  64
+    parameter K_MAX =  2
 ) (
     input logic clk,
     input logic rst_n,
@@ -54,6 +54,7 @@ module compute_wrapper #(
 
     logic sw_clear_done = 0;    // To do : place holder driven by AXI-Lite control reg
 
+    string comp = "[Comp_Wrap]";
     // fsm states
     typedef enum logic [2:0] {
         IDLE,
@@ -132,7 +133,6 @@ module compute_wrapper #(
 
         endcase
 
-
     end
 
     // Counter Logic
@@ -146,12 +146,16 @@ module compute_wrapper #(
             case (state)
 
                 LOAD_A  : 
-                    if (s_axis_a_tvalid && s_axis_a_tready)
+                    if (s_axis_a_tvalid && s_axis_a_tready) begin
+                        A_buf[a_cnt/2][a_cnt%2] <= s_axis_a_tdata;
                         a_cnt <= a_cnt + 1;
+                    end
 
                 LOAD_B  :
-                    if (s_axis_b_tvalid && s_axis_b_tready)
+                    if (s_axis_b_tvalid && s_axis_b_tready) begin
+                        B_buf[b_cnt/2][b_cnt%2] <= s_axis_b_tdata;
                         b_cnt <= b_cnt + 1;
+                    end
 
                 COMPUTE :
                     k_cnt   <=  k_cnt + 1; 
@@ -159,6 +163,7 @@ module compute_wrapper #(
                 OUTPUT  :
                     if (m_axis_c_tvalid && m_axis_c_tready)
                         c_cnt <= c_cnt + 1;
+
                 default: begin
                     a_cnt <= 0;
                     b_cnt <= 0;
@@ -177,7 +182,7 @@ module compute_wrapper #(
             c_last_reg  <= 0;
         end else begin
             if (state == OUTPUT && !c_valid_reg && m_axis_c_tready) begin
-                c_data_reg  <= c_cnt + 1;     //Place holder or MAC result
+                c_data_reg  <=  C_buf[c_cnt/2][c_cnt%2];     //Place holder or MAC result
                 c_valid_reg <= 1;
                 c_last_reg  <= (c_cnt == 3);
 
@@ -190,7 +195,7 @@ module compute_wrapper #(
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tdata = %0d, c_tlast=%0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tdata, m_axis_c_tlast);
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, done_pulse = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, done_pulse, done);
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, start = %0d, done_pulse = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, start, done_pulse);
-
+            $display("%0t %s %s, a_cnt=%0d b_cnt=%0d, c_tdata = %0d", $time, comp, state.name(), a_cnt, b_cnt, c_data_reg);
         end
     end
 
@@ -226,6 +231,24 @@ module compute_wrapper #(
         else
             irq <= done_pulse;
     end
+
+        // Instantiate matmul_core
+    matmul_datapath #(
+        .DATA_W (DATA_W),
+        .ACC_W  (DATA_W),
+        .M(2),
+        .N(2),
+        .K(K_MAX)
+    ) u_matmul (
+        .clk   (clk),
+        .rst_n (rst_n),
+        .en    (state == COMPUTE),
+        .clear (state == PREPARE),
+        .k     (k_cnt),
+        .A     (A_buf),
+        .B     (B_buf),
+        .C     (C_buf)
+    );
 
     // assertions
     // No data accepted outside LOAD states
@@ -359,5 +382,33 @@ module compute_wrapper #(
         state != IDLE && start |-> next_state != IDLE
     )
     else $fatal(1, "FSM returned to IDLE due to start misuse");
-    
+
+    // Matmul core Integration assertions:
+    // C must not change after COMPUTE ends
+    assert property (@(posedge clk)
+        state == OUTPUT |=> $stable(C_buf)
+    )
+    else $fatal(1, "C changes after COMPUTE ends");
+
+    // // No compute without LOAD completion
+    // assert property (@(posedge clk)
+    //     state == COMPUTE |-> (a_cnt == cfg_k*2 && b_cnt == cfg_k*2)
+    // )
+    // else $fatal(1, "Wrong load count %0d %0d", a_cnt, b_cnt);
+
+    // COMPUTE must be entered only after LOAD_A & LOAD_B completed
+    assert property (@(posedge clk)
+        $rose(state == COMPUTE) |-> $past(state) == PREPARE
+    );
+
+    // A/B buffers must be stable during COMPUTE
+    assert property (@(posedge clk)
+        state == COMPUTE |=> ($stable(A_buf) && $stable(B_buf))
+    );
+
+    // (Optional) Load counters are only active in LOAD states
+    assert property (@(posedge clk)
+        !(state inside {LOAD_A, LOAD_B}) |-> (a_cnt == 0 && b_cnt == 0)
+    );
+
 endmodule

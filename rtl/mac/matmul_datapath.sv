@@ -30,6 +30,8 @@ module matmul_datapath #(
 
     logic en_q;
 
+    string comp = "[MatMul]";
+
     always_ff @(posedge clk) begin
         if (!rst_n)
             en_q <= 0;
@@ -45,8 +47,8 @@ module matmul_datapath #(
                 b_mac[i][j] = B[k][j];
             end
         end
-        // $display("A = %p", A);
-        // $display("B = %p", B);
+        $display("%s A = %p", comp, A);
+        $display("%s B = %p", comp, B);
     end
 
     mac_array_2x2   #(.DATA_W(DATA_W), .ACC_W(ACC_W)) mac_array (
