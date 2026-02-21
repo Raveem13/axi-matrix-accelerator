@@ -103,13 +103,15 @@ module cov_matmul (
         option.per_instance = 1;
 
         cp_a_cnt : coverpoint a_cnt {
-            bins zero = {0};
-            bins full = {4};   // 2x2 matrix = 4 beats
+            bins zero   = {0};
+            bins partial= {[1:2]};
+            bins full   = {3};   // 2x2 matrix = 4 beats
         }
 
         cp_b_cnt : coverpoint b_cnt {
             bins zero = {0};
-            bins full = {4};
+            bins partial= {[1:2]};
+            bins full = {3};
         }
         endgroup
 
