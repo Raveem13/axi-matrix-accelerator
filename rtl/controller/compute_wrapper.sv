@@ -194,10 +194,20 @@ module compute_wrapper #(
             // $display("%0t count_c = %0d, %S, c_valid =%0d, c_ready =%0d", $time, c_cnt, state.name(), c_valid_reg, m_axis_c_tready);
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tdata = %0d, c_tlast=%0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tdata, m_axis_c_tlast);
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, done_pulse = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, done_pulse, done);
-            $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, start = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, start, done);
+            // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, start = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, start, done);
             // $display("%0t %s %s, a_cnt=%0d b_cnt=%0d, c_tdata = %0d", $time, comp, state.name(), a_cnt, b_cnt, c_data_reg);
+            // $display("%0t[Comp_Wrap] %s, s_axis_: a_tvalid =%0d, a_tready =%0d, a_tlast=%0d, start = %0d", $time, state.name(), s_axis_a_tvalid, s_axis_a_tready, s_axis_a_tlast, start);
+        
         end
     end
+
+    // // Gated Logs
+    // always @(posedge clk) begin
+    //     if (state inside {OUTPUT, DONE}) begin
+    //         $display("[%0t] [Comp_Wrap] state=%s c_tdata=%0d",
+    //                 $time, state.name(), c_data_reg);
+    //     end
+    // end
 
     assign m_axis_c_tdata   = c_data_reg;
     assign m_axis_c_tvalid  = c_valid_reg;

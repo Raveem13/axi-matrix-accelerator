@@ -149,14 +149,26 @@ module tb_axi_mat_accr;
         apply_reset(5);
 
         test_rst_mid_compute();
+        disable fork;
 
         test_basic_flow();
+        disable fork;
         
         test_done_readback();
+        disable fork;
 
         @(posedge clk);
         test_multiple_runs(3);
+        disable fork;
 
+        // ------D19 directed tests-----
+        @(posedge clk);
+        run_restart_test();
+        disable fork;
+
+        run_start_while_done();
+        disable fork;
+        
         #50;
         $finish;
     end
@@ -233,45 +245,114 @@ module tb_axi_mat_accr;
 
     endtask
 
-    task send_stream_A(
-        // output logic tvalid,
-        // input logic tready,
-        // output logic [DATA_W-1:0] tdata,
-        // output logic tlast,
-        input int beats
-    );
-        // $display("tready = %d", s_axis_a_tready);
-        wait(s_axis_a_tready);
-        // $display("tready=1? = %d", s_axis_a_tready);
-        for (int i=0; i<beats; ++i) begin
-            @(posedge clk);
-            $display("[Test] Loading beat A[%0d] = %0d", i, i);
-            s_axis_a_tvalid  = 1;
-            s_axis_a_tdata   = i;
-            s_axis_a_tlast   = (i == beats-1);
+    // task send_stream_A(
+    //     // output logic tvalid,
+    //     // input logic tready,
+    //     // output logic [DATA_W-1:0] tdata,
+    //     // output logic tlast,
+    //     input int beats
+    // );
+    //     // $display("tready = %d", s_axis_a_tready);
+    //     wait(s_axis_a_tready);
+    //     // $display("tready=1? = %d", s_axis_a_tready);
+    //     for (int i=0; i<beats; ++i) begin
+    //         @(posedge clk);
+    //         $display("[Test] Loading beat A[%0d] = %0d", i, i);
+    //         s_axis_a_tvalid  = 1;
+    //         s_axis_a_tdata   = i;
+    //         s_axis_a_tlast   = (i == beats-1);
             
+    //     end
+    //     @(posedge clk);
+    //     s_axis_a_tvalid = 0;
+    //     s_axis_a_tlast  = 0;
+    // endtask
+
+    // Load A stream with backpressure
+    task send_stream_A(
+        input int beats);
+
+        automatic int sent = 0;
+        // $display("STREAM A START %0d", sent);
+        // initialize
+        s_axis_a_tvalid = 0;
+        s_axis_a_tdata  = '0;
+        s_axis_a_tlast  = 0;
+
+        while (sent < beats) begin
+            @(posedge clk);
+
+            // drive valid and data
+            if ($urandom_range(0,3) == 1) begin
+                s_axis_a_tvalid = 1;
+            end
+            s_axis_a_tdata  = sent;
+            s_axis_a_tlast  = (sent == beats-1);
+
+            // handshake check
+            if (s_axis_a_tvalid && s_axis_a_tready) begin
+                $display("[Test] Sent beat A[%0d] = %0d", sent, sent);
+                sent++;   // advance ONLY on handshake
+            end
         end
+
+        // deassert after completion
         @(posedge clk);
+        // sent  = 0;
         s_axis_a_tvalid = 0;
         s_axis_a_tlast  = 0;
     endtask
 
+    // task send_stream_B(
+    //     input int beats
+    // );
+    //     wait(s_axis_b_tready);
+    //     for (int i=0; i<beats; ++i) begin
+    //         @(posedge clk);
+    //         $display("[Test] Loading beat B[%0d] = %0d", i, i);
+    //         s_axis_b_tvalid  = 1;
+    //         s_axis_b_tdata   = i;
+    //         s_axis_b_tlast   = (i == beats-1);
+            
+    //     end
+    //     @(posedge clk);
+    //     s_axis_b_tvalid = 0;
+    //     s_axis_b_tlast  = 0;
+    // endtask
+
+    // Load B stream with backpressure
     task send_stream_B(
         input int beats
     );
-        wait(s_axis_b_tready);
-        for (int i=0; i<beats; ++i) begin
+        automatic int sent = 0;
+        // initialize
+        s_axis_b_tvalid = 0;
+        s_axis_b_tdata  = '0;
+        s_axis_b_tlast  = 0;
+
+        while (sent < beats) begin
             @(posedge clk);
-            $display("[Test] Loading beat B[%0d] = %0d", i, i);
-            s_axis_b_tvalid  = 1;
-            s_axis_b_tdata   = i;
-            s_axis_b_tlast   = (i == beats-1);
-            
+
+            // drive valid and data with backpressure
+            if ($urandom_range(0,3) == 1) begin
+                s_axis_b_tvalid = 1;
+            end
+            s_axis_b_tdata  = sent;
+            s_axis_b_tlast  = (sent == beats-1);
+
+            // handshake check
+            if (s_axis_b_tvalid && s_axis_b_tready) begin
+                $display("[Test] Sent beat B[%0d] = %0d", sent, sent);
+                sent++;   // advance ONLY on handshake
+            end
         end
+
+        // deassert after completion
         @(posedge clk);
+        sent  = 0;
         s_axis_b_tvalid = 0;
         s_axis_b_tlast  = 0;
-    endtask
+    endtask    
 
     task test_basic_flow();
         $display("%t -----Test Basic Flow-----", $time);
@@ -299,7 +380,7 @@ module tb_axi_mat_accr;
             send_stream_B(4);
         join
         // rand_bp_test(100);
-
+        disable fork;
         $display("[%0t] Waiting for DONE...", $time);
         // Observe output
         wait (dut.done);
@@ -360,5 +441,22 @@ module tb_axi_mat_accr;
         repeat(s_num) @(posedge clk);
         long_stall =  0;
     endtask //automatic
+
+    // -----D 20 directed tests-----
+    task run_restart_test();
+        $display("Restarting operation");
+        axi_lite_write(32'h00, 32'h1);
+        fork
+            send_stream_A(4);
+            send_stream_B(4);
+        join
+        wait (dut.done);
+    endtask   
+
+    task run_start_while_done();
+        $display("Run start while done");
+        wait (dut.done);
+        axi_lite_write(32'h00, 32'h1);
+    endtask
 
 endmodule
