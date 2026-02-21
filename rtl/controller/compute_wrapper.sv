@@ -194,8 +194,8 @@ module compute_wrapper #(
             // $display("%0t count_c = %0d, %S, c_valid =%0d, c_ready =%0d", $time, c_cnt, state.name(), c_valid_reg, m_axis_c_tready);
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tdata = %0d, c_tlast=%0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tdata, m_axis_c_tlast);
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, done_pulse = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, done_pulse, done);
-            // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, start = %0d, done_pulse = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, start, done_pulse);
-            $display("%0t %s %s, a_cnt=%0d b_cnt=%0d, c_tdata = %0d", $time, comp, state.name(), a_cnt, b_cnt, c_data_reg);
+            $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, start = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, start, done);
+            // $display("%0t %s %s, a_cnt=%0d b_cnt=%0d, c_tdata = %0d", $time, comp, state.name(), a_cnt, b_cnt, c_data_reg);
         end
     end
 
@@ -215,10 +215,10 @@ module compute_wrapper #(
     always_ff @(posedge clk or negedge rst_n) begin
         if (!rst_n) begin
             done_reg <= 1'b0;
+        end else if (sw_clear_done || start) begin
+            done_reg <= 1'b0;
         end else if (done_pulse) begin
             done_reg <= 1'b1;
-        end else if (sw_clear_done) begin
-            done_reg <= 1'b0;
         end
     end
 
@@ -342,7 +342,7 @@ module compute_wrapper #(
 
     // Done sticky until cleared by software
     assert property (@(posedge clk)
-        done_reg && !sw_clear_done |=> done_reg
+        done_reg && !sw_clear_done && !start |=> done_reg
     ) 
     else $fatal(1, "done not sticky");
 
@@ -410,5 +410,15 @@ module compute_wrapper #(
     assert property (@(posedge clk)
         !(state inside {LOAD_A, LOAD_B}) |-> (a_cnt == 0 && b_cnt == 0)
     );
+
+    // Reset dominance assertion
+    assert property (@(posedge clk) 
+        !rst_n |-> state == IDLE);
+
+    // No spurious DONE
+    assert property (@(posedge clk)
+        $rose(done) |-> $past(state == DONE)
+    )
+    else $fatal(1, "state %s", state.name());
 
 endmodule

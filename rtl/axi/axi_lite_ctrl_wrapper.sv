@@ -251,7 +251,7 @@ module axi_lite_ctrl_wrapper #(
             status_reg[0]   <= 1'b0;    // clear on new start
         else if (done)
             status_reg[0]   <= 1'b1;      // latch completion
-        // $display("%t start = %0d , done = %0d, ctrl_start = %0d, status[0] = %0d, control[0] = %0d",  $time, start, done, ctrl_start, status_reg[0], ctrl_reg[0]);    
+        // $display("%t [AXI_Wrap] start = %0d , done = %0d, ctrl_start = %0d, status[0] = %0d, control[0] = %0d",  $time, start, done, ctrl_start, status_reg[0], ctrl_reg[0]);    
     end
 
 `ifndef SYNTHESIS
@@ -270,9 +270,9 @@ else $fatal("START without CTRL write");
 
 // C. STATUS latches done
 assert property (@(posedge clk)
-    done |=> status_reg[0] 
+    done && !start |=> status_reg[0] 
 ) 
-else $fatal("STATUS did not latch DONE");
+else $fatal(1, "%t STATUS did not latch DONE", $time);
 
 // D. STATUS clears on new start
 assert property (@(posedge clk)

@@ -71,7 +71,7 @@ module axi_matrix_accelerator #(
     // -------------------------
     logic        start = 0;
     logic        done;
-    logic [15:0] cfg_k;
+    logic [31:0] cfg_k;
 
     // -------------------------
     // AXI-Lite Control Wrapper
