@@ -101,6 +101,18 @@ module tb_axi_mat_accr;
         // .done             (done)
     );
 
+    // -----------------------------
+    // Coverage Instantiation
+    // -----------------------------
+    cov_matmul u_cov (
+        .clk   (clk),
+        .rst_n (rst_n),
+        .start (start),
+        .done  (done),
+        .state (dut.u_compute.state),
+        .a_cnt (dut.u_compute.a_cnt),
+        .b_cnt (dut.u_compute.b_cnt)
+    );
 
     // -------------------------------------------------
     // Clock & Reset
