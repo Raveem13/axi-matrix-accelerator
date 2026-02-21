@@ -39,8 +39,8 @@ module cov_matmul (
     endgroup
     cg_fsm fsm_cov = new();
 
+    // FSM Transition Coverage 
     //  Covergroup: cg_fsm_trans   
-    //
     covergroup cg_fsm_trans @(posedge clk);
         option.per_instance =   1;
         //  Coverpoint: cp_trans
@@ -56,8 +56,9 @@ module cov_matmul (
     endgroup: cg_fsm_trans
     cg_fsm_trans fsm_trans = new();
 
+    // Reset Scenario Coverage
     covergroup cg_reset @(posedge clk);
-    option.per_instance = 1;
+        option.per_instance = 1;
 
         cp_reset_state : coverpoint state {
             bins reset_in_idle      = {IDLE};
@@ -77,5 +78,62 @@ module cov_matmul (
     endgroup
 
     cg_reset reset_cov = new();
+    
+    // Start / Done Control Coverage
+    covergroup cg_control @(posedge clk);
+        option.per_instance = 1;
+
+        cp_start : coverpoint start {
+            bins start_low  = {0};
+            bins start_high = {1};
+        }
+
+        cp_done : coverpoint done {
+            bins done_low  = {0};
+            bins done_high = {1};
+        }
+
+        cross cp_start, cp_done;
+    endgroup
+
+    cg_control ctrl_cov = new();
+
+    // Stream Beat Count Coverage (A & B)
+    covergroup cg_stream @(posedge clk);
+        option.per_instance = 1;
+
+        cp_a_cnt : coverpoint a_cnt {
+            bins zero = {0};
+            bins full = {4};   // 2x2 matrix = 4 beats
+        }
+
+        cp_b_cnt : coverpoint b_cnt {
+            bins zero = {0};
+            bins full = {4};
+        }
+        endgroup
+
+    cg_stream stream_cov = new();
+
+    // Multi-Run Coverage (Optional)
+    int run_count;
+
+    always @(posedge done)
+    run_count++;
+
+    covergroup cg_runs @(posedge clk);
+        cp_runs : coverpoint run_count {
+            bins one   = {1};
+            bins multi = {[2:5]};
+        }
+    endgroup
+
+    cg_runs run_cov = new();
 
 endmodule
+
+// NOTE:
+// Cross cp_reset x cp_reset_state:
+// reset asserted in load states is architecturally illegal.
+// FSM forces IDLE on reset.
+// Uncovered bins are expected and acceptable.
