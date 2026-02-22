@@ -62,3 +62,7 @@ reports/
 # .idea/
 # *.swp
 # *~
+
+tb/reg/
+tb/sequence_items/
+tb/sequences

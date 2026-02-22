@@ -47,8 +47,8 @@ module matmul_datapath #(
                 b_mac[i][j] = B[k][j];
             end
         end
-        $display("%s A = %p", comp, A);
-        $display("%s B = %p", comp, B);
+        // $display("%s A = %p", comp, A);
+        // $display("%s B = %p", comp, B);
     end
 
     mac_array_2x2   #(.DATA_W(DATA_W), .ACC_W(ACC_W)) mac_array (
