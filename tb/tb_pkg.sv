@@ -6,6 +6,9 @@ package tb_pkg;
   // Transaction first
   `include "sequence_items/axi_lite_item.sv"
 
+  // Sequences
+  `include "sequences/axi_basic_seq.sv"
+
   // Agent components
   `include "agents/axi_lite_sequencer.sv"
   `include "agents/axi_lite_driver.sv"
