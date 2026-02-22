@@ -64,5 +64,4 @@ reports/
 # *~
 
 tb/reg/
-tb/sequence_items/
 tb/sequences

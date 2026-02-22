@@ -13,7 +13,7 @@ class axi_lite_agent extends uvm_agent;
     function void build_phase(uvm_phase phase);
         super.build_phase(phase);
 
-        mon = axi_lite_monitor::type_id::create("mon", this);
+        mon     = axi_lite_monitor  ::type_id::create("mon", this);
 
         // if (is_active == UVM_ACTIVE) begin
         seqr    = axi_lite_sequencer::type_id::create("seqr", this);

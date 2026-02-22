@@ -3,14 +3,14 @@ package tb_pkg;
   import uvm_pkg::*;
   `include "uvm_macros.svh"
 
-  // No Interfaces
+  // Transaction first
+  `include "sequence_items/axi_lite_item.sv"
 
-  // AXI agent files
-//   `include "axi_agent/axi_lite_item.sv"
-  `include "axi_agent/axi_lite_sequencer.sv"
-  `include "axi_agent/axi_lite_driver.sv"
-  `include "axi_agent/axi_lite_monitor.sv"
-  `include "axi_agent/axi_lite_agent.sv"
+  // Agent components
+  `include "agents/axi_lite_sequencer.sv"
+  `include "agents/axi_lite_driver.sv"
+  `include "agents/axi_lite_monitor.sv"
+  `include "agents/axi_lite_agent.sv"
 
   // Env & tests
   `include "env/axi_env.sv"
