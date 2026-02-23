@@ -5,9 +5,25 @@ class axi_lite_monitor extends uvm_monitor;
 
     uvm_analysis_port #(axi_lite_item) ap;
 
+    covergroup axi_lite_cg with function sample(axi_lite_item t);
+        cp_rw   : coverpoint t.is_write {
+            bins read  = {0};
+            bins write = {1};
+        }
+        cp_addr : coverpoint t.addr {
+            bins ctrl_reg   = {32'h0};
+            bins status_reg = {32'h04};
+            bins cfg_m_reg  = {32'h08};
+            bins cfg_k_reg  = {32'h0C};
+            bins cfg_n_reg  = {32'h10};
+            bins others     = default;
+        }
+    endgroup
+
     function new(string name, uvm_component parent);
         super.new(name, parent);
         ap  = new("ap", this);
+        axi_lite_cg = new();
     endfunction //new()
 
     function void build_phase(uvm_phase phase);
@@ -40,7 +56,8 @@ class axi_lite_monitor extends uvm_monitor;
                 `uvm_info("MON", $sformatf("Observed Write txn: addr=0x%08h data=0x%08h",
                                     tr.addr, tr.wdata), 
                                     UVM_LOW)
-                
+                axi_lite_cg.sample(tr);
+
                 ap.write(tr);    
             end
 
@@ -59,7 +76,8 @@ class axi_lite_monitor extends uvm_monitor;
                 `uvm_info("MON", $sformatf("Observed Read txn: addr=0x%08h data=0x%08h",
                                     tr.addr, tr.rdata), 
                                     UVM_LOW)
-                
+                axi_lite_cg.sample(tr);
+
                 ap.write(tr);    
             end
         end

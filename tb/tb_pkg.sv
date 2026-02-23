@@ -15,6 +15,10 @@ package tb_pkg;
   `include "agents/axi_lite_monitor.sv"
   `include "agents/axi_lite_agent.sv"
 
+  // Score board files
+  `include "tb/scoreboard/axi_reg_model.sv"
+  `include "tb/scoreboard/axi_scoreboard.sv"
+
   // Env & tests
   `include "env/axi_env.sv"
   
