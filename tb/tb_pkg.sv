@@ -8,6 +8,7 @@ package tb_pkg;
 
   // Sequences
   `include "sequences/axi_basic_seq.sv"
+  `include "sequences/axi_rand_seq.sv"
 
   // Agent components
   `include "agents/axi_lite_sequencer.sv"
@@ -23,5 +24,6 @@ package tb_pkg;
   `include "env/axi_env.sv"
   
   `include "tests/base_test.sv"
+  `include "tests/axi_rand_test.sv"
 
 endpackage

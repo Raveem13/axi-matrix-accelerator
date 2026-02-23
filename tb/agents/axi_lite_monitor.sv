@@ -11,13 +11,15 @@ class axi_lite_monitor extends uvm_monitor;
             bins write = {1};
         }
         cp_addr : coverpoint t.addr {
-            bins ctrl_reg   = {32'h0};
+            bins ctrl_reg   = {32'h00};
             bins status_reg = {32'h04};
             bins cfg_m_reg  = {32'h08};
             bins cfg_k_reg  = {32'h0C};
             bins cfg_n_reg  = {32'h10};
-            bins others     = default;
+            // bins others     = default;
         }
+
+        cross cp_rw, cp_addr;
     endgroup
 
     function new(string name, uvm_component parent);

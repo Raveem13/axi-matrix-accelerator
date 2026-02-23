@@ -6,7 +6,7 @@ class axi_lite_item extends uvm_sequence_item;
     // AXI-Lite address & data
     rand bit [31:0] addr;
     rand bit [31:0] wdata;
-        bit [31:0] rdata;
+    rand bit [31:0] rdata;
 
     // Control
     rand bit    is_write; // 1 = write, 0 = read

@@ -29,7 +29,7 @@ class axi_lite_driver extends uvm_driver #(axi_lite_item);
                 drive_read(tr);
             end
             
-            seq_item_port.item_done(tr);
+            seq_item_port.item_done();
         end
 
         `uvm_info("DRV", "Transaction completed", UVM_LOW)
