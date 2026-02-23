@@ -3,10 +3,18 @@ import uvm_pkg::*;
 
 module tb_top;
 
-    logic clk = 0;
+    logic clk;
+    logic rst_n;
+
     always #5 clk = ~clk;
 
-    axi_lite_if axi_if0(clk, rst_n);
+    initial begin
+        clk     = 0;
+        rst_n   = 0;
+        #20 rst_n   =   1;
+    end
+
+    axi_lite_if axi_if0(.clk(clk), .rst_n(rst_n));
 
     axi_matrix_accelerator dut0 (
         .clk              (clk),

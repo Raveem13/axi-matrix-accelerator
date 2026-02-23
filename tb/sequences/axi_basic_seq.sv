@@ -13,8 +13,8 @@ class axi_basic_seq extends uvm_sequence #(axi_lite_item);
         tr  = axi_lite_item::type_id::create("tr");
 
         start_item(tr);
-        tr.addr     =   32'h0000_0004;
-        tr.wdata    =   32'hABCD_CDEF;
+        tr.addr     =   32'h0000_0008;
+        tr.wdata    =   32'h0000_000F;
         tr.is_write =   1'b1;
         finish_item(tr);
 

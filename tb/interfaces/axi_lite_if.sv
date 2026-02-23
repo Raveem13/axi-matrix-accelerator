@@ -1,4 +1,4 @@
-interface axi_lite_if (input logic ACLK, input logic ARST_N);
+interface axi_lite_if (input logic clk, input logic rst_n);
 
   // Write Address
   logic        awvalid;

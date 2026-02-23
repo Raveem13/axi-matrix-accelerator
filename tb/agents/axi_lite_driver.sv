@@ -20,14 +20,50 @@ class axi_lite_driver extends uvm_driver #(axi_lite_item);
         // `uvm_info("DRV", "Driver alive (typed)", UVM_LOW)
         `uvm_info("DRV", "Driver waiting for transaction", UVM_LOW)
         
-        seq_item_port.get_next_item(tr);
+        forever begin
+            seq_item_port.get_next_item(tr);
 
-        `uvm_info("DRV", $sformatf("Got txn: addr=0x%08h, data=0x%08h, is_write=%d", 
-                        tr.addr, tr.wdata, tr.is_write), UVM_LOW)
-        
-        seq_item_port.item_done(tr);
+            if (tr.is_write) begin
+                drive_write(tr);
+            end else begin
+                // drive_read(tr);
+            end
+            
+            seq_item_port.item_done(tr);
+        end
 
-        `uvm_info("DRV", "Transaction completed (no driving yet)", UVM_LOW)
+        `uvm_info("DRV", "Transaction completed", UVM_LOW)
         
     endtask
+
+    task drive_write(axi_lite_item tr);
+
+         // Address phase
+        vif.awaddr  <= tr.addr;
+        vif.awvalid <= 1;
+        do @(posedge vif.clk);
+        while (!(vif.awready));
+
+        // Data phase
+        vif.wdata  <= tr.wdata;
+        vif.wvalid <= 1;
+
+        do @(posedge vif.clk);
+        while (!(vif.wready));
+
+        vif.awvalid <= 0;
+        vif.wvalid <= 0;
+
+        // Response phase
+        vif.bready <= 1;
+        do @(posedge vif.clk);
+        while (!vif.bvalid);
+        `uvm_info("DRV_WR", $sformatf("Writing data = %0d @ address = %h, BRESP = %02b",
+                            tr.wdata, tr.addr, vif.bresp), 
+                            UVM_NONE)
+        
+        vif.bready <= 0;        
+        
+    endtask
+
 endclass //axi_lite_driver extends uvm_driver
