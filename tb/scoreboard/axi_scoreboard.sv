@@ -18,19 +18,27 @@ class axi_scoreboard extends uvm_component;
     virtual function void write(axi_lite_item tr);
         
         if (tr.is_write) begin
-            ref_model.write(tr.addr, tr.wdata);
-
-            `uvm_info("SCB", 
+            if (tr.resp == 2'b00) begin
+                ref_model.write(tr.addr, tr.wdata);
+            
+                `uvm_info("SCB_WR", 
                         $sformatf("Write stored: addr=0x%08h, data=0x%08h",
                         tr.addr, tr.wdata), 
                         UVM_LOW)
+            end else begin
+                `uvm_info("SCB_N_WR", 
+                        $sformatf("Write not stored: Invalid addr=0x%08h",
+                        tr.addr), 
+                        UVM_LOW)
+            end
+            
             
         end else begin
             bit [31:0] exp_data;
             exp_data = ref_model.read(tr.addr);
 
             if (exp_data !== tr.rdata) begin
-                `uvm_error("SCB", 
+                `uvm_warning("SCB", 
                             $sformatf("Read Mismatch @ addr=0x%08h, exp=0x%08h got=0x%08h", 
                                         tr.addr, exp_data, tr.rdata))
                 

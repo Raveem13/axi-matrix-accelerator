@@ -54,6 +54,10 @@ class axi_lite_monitor extends uvm_monitor;
                 
                 tr.wdata    = vif.wdata; 
                 tr.wstrb    = vif.wstrb; 
+
+                do @(posedge vif.clk);
+                while(!(vif.bvalid && vif.bready));
+                tr.resp     = vif.bresp;
                 
                 `uvm_info("MON", $sformatf("Observed Write txn: addr=0x%08h data=0x%08h",
                                     tr.addr, tr.wdata), 
