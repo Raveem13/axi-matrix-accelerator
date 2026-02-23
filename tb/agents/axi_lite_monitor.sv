@@ -6,7 +6,6 @@ class axi_lite_monitor extends uvm_monitor;
     uvm_analysis_port #(axi_lite_item) ap;
 
     covergroup axi_lite_cg with function sample(axi_lite_item t);
-        option.per_instance = 1;
         
         cp_rw   : coverpoint t.is_write {
             bins read  = {0};
