@@ -18,6 +18,12 @@ class axi_basic_seq extends uvm_sequence #(axi_lite_item);
         tr.is_write =   1'b1;
         finish_item(tr);
 
+        tr = axi_lite_item::type_id::create("rd_tr");
+        tr.is_write = 0;
+        tr.addr     = 32'h0000_0008;
+        start_item(tr);
+        finish_item(tr);
+
         `uvm_info("SEQ", "Finished basic AXI-Lite sequence", UVM_LOW)
         
     endtask

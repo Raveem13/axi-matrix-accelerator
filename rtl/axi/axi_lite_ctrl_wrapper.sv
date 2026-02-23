@@ -105,8 +105,8 @@ module axi_lite_ctrl_wrapper #(
         if (!rst_n) begin
             wstate <= W_IDLE;
         end else begin
-            $display("%t [DUT] state = %s, data = %0d @ address = %h, aw_hs = %0d, w_hs = %0d, s_axi_awvalid = %0d",
-                    $time, wstate.name(), s_axi_wdata, s_axi_awaddr, aw_hs, w_hs, s_axi_awvalid);
+            // $display("%t [DUT] state = %s, data = %0d @ address = %h, aw_hs = %0d, w_hs = %0d, s_axi_awvalid = %0d",
+            //         $time, wstate.name(), s_axi_wdata, s_axi_awaddr, aw_hs, w_hs, s_axi_awvalid);
             // $display("[DUT] state = %s, data = %0d @ address = %h, BRESP = %02b, BVALID = %0d",
             //         $time, wstate.name(), s_axi_wdata, s_axi_awaddr, s_axi_bresp, s_axi_bvalid);
             wstate <= next_wstate;

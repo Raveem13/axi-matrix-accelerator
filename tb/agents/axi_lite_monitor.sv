@@ -44,6 +44,24 @@ class axi_lite_monitor extends uvm_monitor;
                 ap.write(tr);    
             end
 
+            if (vif.arvalid && vif.arready) begin
+                tr  = axi_lite_item::type_id::create("tr_rd", this);
+
+                tr.addr     =   vif.araddr;
+                tr.is_write =   1'b0;
+
+                // Wait for W channel
+                do @(posedge vif.clk);
+                while(!(vif.rvalid && vif.rready));
+                
+                tr.rdata    = vif.rdata; 
+                
+                `uvm_info("MON", $sformatf("Observed Read txn: addr=0x%08h data=0x%08h",
+                                    tr.addr, tr.rdata), 
+                                    UVM_LOW)
+                
+                ap.write(tr);    
+            end
         end
     endtask
 endclass //axi_lite_monitor extends uvm_monitor

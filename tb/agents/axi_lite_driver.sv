@@ -26,7 +26,7 @@ class axi_lite_driver extends uvm_driver #(axi_lite_item);
             if (tr.is_write) begin
                 drive_write(tr);
             end else begin
-                // drive_read(tr);
+                drive_read(tr);
             end
             
             seq_item_port.item_done(tr);
@@ -63,6 +63,28 @@ class axi_lite_driver extends uvm_driver #(axi_lite_item);
                             UVM_NONE)
         
         vif.bready <= 0;        
+        
+    endtask
+
+    task drive_read(axi_lite_item tr);
+
+         // Address phase
+        vif.araddr  <= tr.addr;
+        vif.arvalid <= 1;
+        do @(posedge vif.clk);
+        while (!(vif.arready));
+
+        vif.arvalid <= 0;
+
+        // Response phase
+        vif.rready  <= 1;
+        do @(posedge vif.clk);
+        while (!vif.rvalid);
+        `uvm_info("DRV_RD", $sformatf("Read data = %0d @ address = %h",
+                            vif.rdata, tr.addr), 
+                            UVM_NONE)
+        
+        vif.rready <= 0;       
         
     endtask
 
