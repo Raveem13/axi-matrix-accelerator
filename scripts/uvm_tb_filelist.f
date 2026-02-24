@@ -21,8 +21,12 @@ rtl/mac/matmul_datapath.sv
 tb/tb_pkg.sv
 // tb/reg/axi_regs.sv
 
+//  Interface
 tb/interfaces/axi_lite_if.sv
+
+// Transaction items
 tb/sequence_items/axi_lite_item.sv
+tb/sequence_items/axi_stream_packet.sv
 
 // tb/sequences/axi_base_seq.
 tb/sequences/axi_basic_seq.sv
@@ -33,6 +37,10 @@ tb/agents/axi_lite_sequencer.sv
 tb/agents/axi_lite_driver.sv
 tb/agents/axi_lite_monitor.sv
 tb/agents/axi_lite_agent.sv
+
+tb/agents/axi_stream_agent.sv
+tb/agents/axi_stream_monitor.sv
+tb/agents/axi_stream_driver.sv
 
 tb/scoreboard/axi_reg_model.sv
 tb/scoreboard/axi_scoreboard.sv
