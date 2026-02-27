@@ -419,7 +419,8 @@ module compute_wrapper #(
     // (Optional) Load counters are only active in LOAD states
     assert property (@(posedge clk)
         !(state inside {LOAD_A, LOAD_B}) |-> (a_cnt == 0 && b_cnt == 0)
-    );
+    )
+    else $fatal(1, "Load counters active outside load states");
 
     // Reset dominance assertion
     assert property (@(posedge clk) 

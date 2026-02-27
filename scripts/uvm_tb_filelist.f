@@ -19,6 +19,7 @@ rtl/mac/matmul_datapath.sv
 // ---- test-benches ----
 // tb package file
 tb/tb_pkg.sv
+tb/common/axi_types.sv
 // tb/reg/axi_regs.sv
 
 //  Interface
@@ -32,15 +33,17 @@ tb/sequence_items/axi_stream_packet.sv
 tb/sequences/axi_basic_seq.sv
 tb/sequences/axi_rand_seq.sv
 // tb/sequences/start_compute_seq.sv
+tb/sequences/axis_simple_seq.sv
 
 tb/agents/axi_lite_sequencer.sv
 tb/agents/axi_lite_driver.sv
 tb/agents/axi_lite_monitor.sv
 tb/agents/axi_lite_agent.sv
 
-tb/agents/axi_stream_agent.sv
+tb/agents/axi_stream_sequencer.sv
 tb/agents/axi_stream_monitor.sv
 tb/agents/axi_stream_driver.sv
+tb/agents/axi_stream_agent.sv
 
 tb/scoreboard/axi_reg_model.sv
 tb/scoreboard/axi_scoreboard.sv
@@ -49,4 +52,5 @@ tb/env/axi_env.sv
 
 tb/tests/base_test.sv
 tb/tests/axi_rand_test.sv
+tb/tests/axis_data_sanity_test.sv
 tb/top/tb_top.sv

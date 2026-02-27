@@ -12,6 +12,11 @@ module tb_top;
         clk     = 0;
         rst_n   = 0;
         #20 rst_n   =   1;
+
+        dut0.u_ctrl.cfg_k_reg = 32'h02;
+        dut0.u_ctrl.start = 1;
+        @(posedge clk);
+        dut0.u_ctrl.start = 0;
     end
 
     axi_lite_if axi_if0(.clk(clk), .rst_n(rst_n));
@@ -60,7 +65,7 @@ module tb_top;
     initial begin
         uvm_config_db#(virtual axi_lite_if)::set(null, "*", "vif", axi_if0);
         // run_test("base_test");
-        run_test("axi_rand_test");
+        run_test("axis_data_sanity_test");
     end
 endmodule
 

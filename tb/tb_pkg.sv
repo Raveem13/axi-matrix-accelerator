@@ -3,12 +3,16 @@ package tb_pkg;
   import uvm_pkg::*;
   `include "uvm_macros.svh"
 
+  `include "tb/common/axi_types.sv"
+
   // Transaction first
   `include "sequence_items/axi_lite_item.sv"
+  `include "sequence_items/axi_stream_packet.sv"
 
   // Sequences
   `include "sequences/axi_basic_seq.sv"
   `include "sequences/axi_rand_seq.sv"
+  `include "sequences/axis_simple_seq.sv"
 
   // Agent components
   `include "agents/axi_lite_sequencer.sv"
@@ -16,9 +20,10 @@ package tb_pkg;
   `include "agents/axi_lite_monitor.sv"
   `include "agents/axi_lite_agent.sv"
 
-  `include "agents/axi_stream_agent.sv"
+  `include "agents/axi_stream_sequencer.sv"
   `include "agents/axi_stream_monitor.sv" 
   `include "agents/axi_stream_driver.sv"
+  `include "agents/axi_stream_agent.sv"
 
   // Score board files
   `include "tb/scoreboard/axi_reg_model.sv"
@@ -29,5 +34,6 @@ package tb_pkg;
   
   `include "tests/base_test.sv"
   `include "tests/axi_rand_test.sv"
+  `include "tests/axis_data_sanity_test.sv"
 
 endpackage

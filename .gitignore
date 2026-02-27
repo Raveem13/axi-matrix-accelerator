@@ -67,3 +67,5 @@ tb/reg/
 # tb/sequences
 tb/sequences/axi_basex_seq.sv
 tb/sequences/start_compute_seq.sv
+
+ignore/

@@ -1,0 +1,1 @@
+typedef enum {AXIS_A, AXIS_B, AXIS_C} axis_role_e;
