@@ -7,11 +7,12 @@ class axi_s_scoreboard extends uvm_component;
     
     axis_ref_model ref_model;
 
+    // Queues
     bit [31:0] a_pkt[$];
     bit [31:0] b_pkt[$];
     bit [31:0] c_pkt[$];
 
-      // Three subscribers
+    // Three subscribers
     uvm_analysis_imp_a #(axi_stream_packet, axi_s_scoreboard) ap_a;
     uvm_analysis_imp_b #(axi_stream_packet, axi_s_scoreboard) ap_b;
     uvm_analysis_imp_c #(axi_stream_packet, axi_s_scoreboard) ap_c;
@@ -27,17 +28,19 @@ class axi_s_scoreboard extends uvm_component;
     endfunction
 
     function void write_a(axi_stream_packet pkt);
-        a_pkt = pkt.data;
-        try_build_expected();
+        a_pkt   = pkt.data;
+        // try_build_expected();
     endfunction
 
     function void write_b(axi_stream_packet pkt);
-        b_pkt = pkt.data;
-        try_build_expected();
+        b_pkt   = pkt.data;
+        // try_build_expected();
     endfunction
 
     function void write_c(axi_stream_packet pkt);
+        try_build_expected();
         c_pkt = pkt.data;
+        // $display("C_packet = %p", c_pkt);
         compare();
     endfunction
 
@@ -63,8 +66,13 @@ class axi_s_scoreboard extends uvm_component;
                     i, ref_model.exp_pkt[i], c_pkt[i]))
                 return;
             end
+            else begin
+                `uvm_info("SCB", $sformatf("i:%0d Exp=%0d, Got=%0d",
+                        i, ref_model.exp_pkt[i], c_pkt[i] ), 
+                        UVM_NONE)
+            end
         end
 
-        `uvm_info("SCB", "Packet matched successfully", UVM_LOW)
+        `uvm_info("SCB", "Matrix multiplication packet PASSED", UVM_LOW)
     endfunction
 endclass
