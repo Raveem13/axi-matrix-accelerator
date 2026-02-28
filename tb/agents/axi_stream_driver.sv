@@ -21,7 +21,11 @@ class axi_stream_driver extends uvm_driver #(axi_stream_packet);
     task run_phase(uvm_phase phase);
         axi_stream_packet pkt;
         `uvm_info("DRV", "Run phase", UVM_NONE)
-
+        
+        vif.a_tvalid <= 1'b0;
+        vif.a_tlast  <= 1'b0;
+        vif.b_tvalid <= 1'b0;
+        vif.b_tlast  <= 1'b0;
         // if (role == AXIS_C) begin
         //     `uvm_info("AXIS_C", "Driving tready permanently", UVM_NONE)
         //     vif.c_tready <= 1'b1;

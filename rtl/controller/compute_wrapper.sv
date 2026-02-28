@@ -182,7 +182,7 @@ module compute_wrapper #(
             c_last_reg  <= 0;
         end else begin
             if (state == OUTPUT && !c_valid_reg && m_axis_c_tready) begin
-                c_data_reg  <=  C_buf[c_cnt/2][c_cnt%2];     //Place holder or MAC result
+                c_data_reg  <= C_buf[c_cnt/2][c_cnt%2];     //Place holder or MAC result
                 c_valid_reg <= 1;
                 c_last_reg  <= (c_cnt == 3);
 

@@ -40,6 +40,9 @@ tb/agents/axi_lite_driver.sv
 tb/agents/axi_lite_monitor.sv
 tb/agents/axi_lite_agent.sv
 
+tb/scoreboard/axi_s_scoreboard.sv
+
+
 tb/agents/axi_stream_sequencer.sv
 tb/agents/axi_stream_monitor.sv
 tb/agents/axi_stream_driver.sv
@@ -47,6 +50,8 @@ tb/agents/axi_stream_agent.sv
 
 tb/scoreboard/axi_reg_model.sv
 tb/scoreboard/axi_scoreboard.sv
+
+tb/ref_model/axis_ref_model.sv
 
 tb/env/axi_env.sv
 

@@ -1,3 +1,6 @@
+`include "uvm_macros.svh"
+import uvm_pkg::*;
+
 class axis_data_sanity_test extends uvm_test;
   `uvm_component_utils(axis_data_sanity_test)
 

@@ -20,10 +20,15 @@ package tb_pkg;
   `include "agents/axi_lite_monitor.sv"
   `include "agents/axi_lite_agent.sv"
 
+  `include "tb/scoreboard/axi_s_scoreboard.sv"
+
   `include "agents/axi_stream_sequencer.sv"
   `include "agents/axi_stream_monitor.sv" 
   `include "agents/axi_stream_driver.sv"
   `include "agents/axi_stream_agent.sv"
+
+  // Reference Model
+  `include "tb/ref_model/axis_ref_model.sv"
 
   // Score board files
   `include "tb/scoreboard/axi_reg_model.sv"
@@ -36,4 +41,4 @@ package tb_pkg;
   `include "tests/axi_rand_test.sv"
   `include "tests/axis_data_sanity_test.sv"
 
-endpackage
+endpackage 
