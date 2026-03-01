@@ -204,10 +204,19 @@ module compute_wrapper #(
     // // Gated Logs
     // always @(posedge clk) begin
     //     if (state inside {OUTPUT, DONE}) begin
-    //         $display("[%0t] [Comp_Wrap] state=%s c_tdata=%0d",
-    //                 $time, state.name(), c_data_reg);
+    //         $display("[%0t] [Comp_Wrap] state=%s: c_tready=%0d, c_tdata=%0d",
+    //                 $time, state.name(), m_axis_c_tready, c_data_reg);
     //     end
     // end
+
+    always @(posedge clk) begin
+        if (state inside {LOAD_A}) begin
+            $display("%0t[Comp_Wrap] %s, s_axis_: a_tvalid =%0d, a_tready =%0d, a_tlast=%0d, a_tdata = %0d", $time, state.name(), s_axis_a_tvalid, s_axis_a_tready, s_axis_a_tlast, s_axis_a_tdata);
+        end
+        if (state inside {LOAD_B}) begin
+            $display("%0t[Comp_Wrap] %s, s_axis_: b_tvalid =%0d, b_tready =%0d, b_tlast=%0d, b_tdata = %0d", $time, state.name(), s_axis_b_tvalid, s_axis_b_tready, s_axis_b_tlast, s_axis_b_tdata);
+        end
+    end
 
     assign m_axis_c_tdata   = c_data_reg;
     assign m_axis_c_tvalid  = c_valid_reg;
