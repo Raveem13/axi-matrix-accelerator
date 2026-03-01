@@ -34,6 +34,7 @@ tb/sequences/axi_basic_seq.sv
 tb/sequences/axi_rand_seq.sv
 // tb/sequences/start_compute_seq.sv
 tb/sequences/axis_simple_seq.sv
+// tb/sequences/axis_back_to_back_seq.sv
 
 tb/agents/axi_lite_sequencer.sv
 tb/agents/axi_lite_driver.sv
@@ -44,6 +45,7 @@ tb/scoreboard/axi_s_scoreboard.sv
 
 
 tb/agents/axi_stream_sequencer.sv
+// tb/agents/axi_virtual_sequencer.sv
 tb/agents/axi_stream_monitor.sv
 tb/agents/axi_stream_driver.sv
 tb/agents/axi_stream_agent.sv

@@ -48,9 +48,8 @@ class axi_stream_driver extends uvm_driver #(axi_stream_packet);
             end
 
             seq_item_port.get_next_item(pkt);
-            // `uvm_info("DRV", "Got seq", UVM_NONE)
-            $display("Packet = %p", pkt.data);
-            
+            `uvm_info("DRV", $sformatf("Got seq, Packet = %p", pkt.data ), UVM_NONE)
+
             for (int i = 0; i < pkt.data.size(); i++) begin
                 bit done = 0;
 
@@ -59,7 +58,7 @@ class axi_stream_driver extends uvm_driver #(axi_stream_packet);
                 vif.a_tdata  <= pkt.data[i];
                 vif.a_tvalid <= 1'b1;
                 vif.a_tlast  <= (i == pkt.data.size()-1);
-                `uvm_info("DRV", $sformatf("A: Data=%0d", pkt.data[i]), UVM_NONE)
+                `uvm_info("DRV", $sformatf("A: Data[%0d]=%0d size=%0d", i, pkt.data[i], pkt.data.size()), UVM_NONE)
                 end
 
                 else if (role == AXIS_B) begin
@@ -67,7 +66,7 @@ class axi_stream_driver extends uvm_driver #(axi_stream_packet);
                 vif.b_tdata  <= pkt.data[i];
                 vif.b_tvalid <= 1'b1;
                 vif.b_tlast  <= (i == pkt.data.size()-1);
-                `uvm_info("DRV", $sformatf("B: Data=%0d", pkt.data[i]), UVM_NONE)
+                `uvm_info("DRV", $sformatf("B: Data[%0d]=%0d size=%0d", i, pkt.data[i], pkt.data.size()), UVM_NONE)
                 end
 
                 // HOLD until handshake
@@ -90,10 +89,10 @@ class axi_stream_driver extends uvm_driver #(axi_stream_packet);
                     vif.b_tlast  <= 1'b0;
                 end
                 // random gap
-                n = $urandom_range(0,3);
-                // `uvm_info("DRV", $sformatf("%s Gap=%0d", role.name(), n), UVM_NONE)
-                $display("%t %s Gap=%0d", $time, role.name(), n);
-                repeat(n) @(posedge vif.clk);
+                // n = $urandom_range(0,3);
+                // // `uvm_info("DRV", $sformatf("%s Gap=%0d", role.name(), n), UVM_NONE)
+                // $display("%t %s Gap=%0d", $time, role.name(), n);
+                // repeat(n) @(posedge vif.clk);
             end
 
             seq_item_port.item_done();

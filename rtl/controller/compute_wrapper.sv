@@ -97,6 +97,7 @@ module compute_wrapper #(
 
             LOAD_A  :   begin
                 s_axis_a_tready = 1;
+                s_axis_b_tready = 0;
                 if (s_axis_a_tvalid && s_axis_a_tready && s_axis_a_tlast)
                     next_state = LOAD_B;
             end
@@ -148,13 +149,19 @@ module compute_wrapper #(
                 LOAD_A  : 
                     if (s_axis_a_tvalid && s_axis_a_tready) begin
                         A_buf[a_cnt/2][a_cnt%2] <= s_axis_a_tdata;
-                        a_cnt <= a_cnt + 1;
+                        if (s_axis_a_tlast)
+                            a_cnt <= 0;
+                        else
+                            a_cnt <= a_cnt + 1;
                     end
 
                 LOAD_B  :
                     if (s_axis_b_tvalid && s_axis_b_tready) begin
                         B_buf[b_cnt/2][b_cnt%2] <= s_axis_b_tdata;
-                        b_cnt <= b_cnt + 1;
+                        if (s_axis_b_tlast)
+                            b_cnt <= 0;
+                        else
+                            b_cnt <= b_cnt + 1;
                     end
 
                 COMPUTE :
@@ -195,7 +202,7 @@ module compute_wrapper #(
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tdata = %0d, c_tlast=%0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tdata, m_axis_c_tlast);
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, done_pulse = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, done_pulse, done);
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, start = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, start, done);
-            // $display("%0t %s %s, a_cnt=%0d b_cnt=%0d, c_tdata = %0d", $time, comp, state.name(), a_cnt, b_cnt, c_data_reg);
+            $display("%0t %s %s, a_cnt=%0d b_cnt=%0d, c_tdata = %0d", $time, comp, state.name(), a_cnt, b_cnt, c_data_reg);
             // $display("%0t[Comp_Wrap] %s, s_axis_: a_tvalid =%0d, a_tready =%0d, a_tlast=%0d, start = %0d", $time, state.name(), s_axis_a_tvalid, s_axis_a_tready, s_axis_a_tlast, start);
         
         end
@@ -210,10 +217,10 @@ module compute_wrapper #(
     // end
 
     always @(posedge clk) begin
-        if (state inside {LOAD_A}) begin
+        if (state inside {LOAD_A, LOAD_B}) begin
             $display("%0t[Comp_Wrap] %s, s_axis_: a_tvalid =%0d, a_tready =%0d, a_tlast=%0d, a_tdata = %0d", $time, state.name(), s_axis_a_tvalid, s_axis_a_tready, s_axis_a_tlast, s_axis_a_tdata);
         end
-        if (state inside {LOAD_B}) begin
+        if (state inside {LOAD_A, LOAD_B}) begin
             $display("%0t[Comp_Wrap] %s, s_axis_: b_tvalid =%0d, b_tready =%0d, b_tlast=%0d, b_tdata = %0d", $time, state.name(), s_axis_b_tvalid, s_axis_b_tready, s_axis_b_tlast, s_axis_b_tdata);
         end
     end
