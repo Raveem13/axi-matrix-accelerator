@@ -1,4 +1,4 @@
-module matmul_2x2_kN #(
+module matmul_mxn_kN #(
     parameter DATA_W = 8,
     parameter ACC_W = 32,
     parameter int K = 2,
@@ -19,8 +19,8 @@ module matmul_2x2_kN #(
     // internal signals
     logic en, clear;
     // logic [1:0] k;
-    logic signed [DATA_W-1:0] a_mac [2][2];
-    logic signed [DATA_W-1:0] b_mac [2][2];
+    logic signed [DATA_W-1:0] a_mac [M][K];
+    logic signed [DATA_W-1:0] b_mac [K][N];
     logic [$clog2(K):0] k;
 
     logic en_q;
@@ -105,7 +105,7 @@ module matmul_2x2_kN #(
         end
     end
 
-    mac_array_2x2   mac_array (
+    mac_array_mxn   mac_array (
         .clk(clk),
         .rst_n(rst_n),
         .en(en),
@@ -130,7 +130,7 @@ module matmul_2x2_kN #(
     // When MAC is enabled, k must be valid (0 or 1)
     property k_valid_when_en;
         @(posedge clk)
-        en |-> (k inside {0,1});
+        en |-> k < K;
     endproperty
 
     assert property (k_valid_when_en)

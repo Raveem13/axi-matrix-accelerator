@@ -6,7 +6,7 @@ set -e
 # CP1: matmul_core_tb
 # CP2: axi_lite_ctrl_wrapper_tb
 # CP3: comp_wrapper_tb13_fsm, comp_wrapper_tb14_backpress, comp_wrapper_tb15_doneIntr, comp_wrapper_tb16_stress
-TOP=matmul_2x2_kN_tb
+TOP=matmul_mxn_kN_tb
 
 #Simulation snap-shot name
 SIM=sim_${TOP}
