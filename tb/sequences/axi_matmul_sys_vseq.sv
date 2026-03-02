@@ -13,10 +13,6 @@ class axi_matmul_sys_vseq extends uvm_sequence;
       axis_simple_seq  send_b;
       axis_simple_seq  send_c;
 
-      // Raise objection HERE
-      if (starting_phase != null)
-        starting_phase.raise_objection(this);
-
       // Cast sequencer
       if (!$cast(vseqr, m_sequencer))
         `uvm_fatal("VSEQ", "Virtual sequencer cast failed")
@@ -39,9 +35,27 @@ class axi_matmul_sys_vseq extends uvm_sequence;
 
       // (Optional) wait for DONE or interrupt
       // read status / poll register
-      
-      // Drop objection ONLY after everything is done
-      if (starting_phase != null)
-        starting_phase.drop_objection(this);
+      // wait_for_done();
+
+    endtask
+
+    task wait_for_done();
+      axi_lite_item rd;
+      bit done = 0;
+
+      forever begin
+        rd = axi_lite_item::type_id::create("rd");
+
+        start_item(rd);
+        finish_item(rd);
+
+        done = rd.rdata[0];
+
+        if (done) begin
+          break;
+        end
+
+        #100ns;
+      end
     endtask
 endclass

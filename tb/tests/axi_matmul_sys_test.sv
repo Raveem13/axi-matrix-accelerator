@@ -15,11 +15,11 @@ class axi_matmul_sys_test extends uvm_test;
     task run_phase(uvm_phase phase);
         axi_matmul_sys_vseq vseq;
 
-        // phase.raise_objection(this);
+        phase.raise_objection(this);
 
         vseq = axi_matmul_sys_vseq::type_id::create("vseq");
         vseq.start(env.vseqr);
 
-        // phase.drop_objection(this);
+        phase.drop_objection(this);
     endtask
 endclass
