@@ -25,8 +25,8 @@ module matmul_datapath #(
     output logic signed [ACC_W-1:0] C [M][N]
 );
     // internal signals
-    logic signed [DATA_W-1:0] a_mac [M][N];
-    logic signed [DATA_W-1:0] b_mac [M][N];
+    logic signed [DATA_W-1:0] a_mac [M][N] = '{default:0};
+    logic signed [DATA_W-1:0] b_mac [M][N] = '{default:0};
 
     logic en_q;
 
