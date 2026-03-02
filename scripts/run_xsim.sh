@@ -6,21 +6,25 @@ set -e
 # CP1: matmul_core_tb
 # CP2: axi_lite_ctrl_wrapper_tb
 # CP3: comp_wrapper_tb13_fsm, comp_wrapper_tb14_backpress, comp_wrapper_tb15_doneIntr, comp_wrapper_tb16_stress
-TOP=tb_axi_mat_accr
+TOP=matmul_2x2_kN_tb
 
 #Simulation snap-shot name
 SIM=sim_${TOP}
+
+MODE=${1:-all}   # default = all
 
 #Files main path
 WORK_DIR=../
 cd $WORK_DIR
 
 # cmd.exe used to run cmd in Window through WSL
-echo "1 ▶ Compile"
-cmd.exe /c xvlog -sv -f scripts/filelist.f
+if [[ "$MODE" == "all" ]]; then
+    echo "1 ▶ Compile"
+    cmd.exe /c xvlog -sv -f scripts/filelist.f
 
-echo "2 ▶ Elaborate"
-cmd.exe /c xelab work.$TOP -s $SIM --debug typical
+    echo "2 ▶ Elaborate"
+    cmd.exe /c xelab work.$TOP -s $SIM --debug typical
+fi
 
 echo "3 ▶ Simulate"
 cmd.exe /c xsim $SIM -runall
