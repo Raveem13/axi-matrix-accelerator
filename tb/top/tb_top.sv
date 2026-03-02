@@ -67,7 +67,7 @@ module tb_top;
         uvm_config_db#(virtual axi_lite_if)::set(null, "*", "vif", axi_if0);
         // run_test("base_test");
         // run_test("base_test");
-        run_test("axis_data_sanity_test");
+        run_test("axi_matmul_sys_test");
     end
 endmodule
 

@@ -24,7 +24,7 @@ package tb_pkg;
   `include "tb/scoreboard/axi_s_scoreboard.sv"
 
   `include "agents/axi_stream_sequencer.sv"
-  // `include "agents/axi_virtual_sequencer.sv"
+  `include "agents/virtual_sequencer.sv"
   `include "agents/axi_stream_monitor.sv" 
   `include "agents/axi_stream_driver.sv"
   `include "agents/axi_stream_agent.sv"
@@ -42,5 +42,11 @@ package tb_pkg;
   `include "tests/base_test.sv"
   `include "tests/axi_rand_test.sv"
   `include "tests/axis_data_sanity_test.sv"
+
+  // System bringup
+  `include "sequences/ctrl_cfg_seq.sv"
+  `include "sequences/axi_matmul_sys_vseq.sv"
+  `include "env/axi_mat_accr_sys_env.sv"
+  `include "tests/axi_matmul_sys_test.sv"
 
 endpackage 

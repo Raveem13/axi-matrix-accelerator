@@ -45,7 +45,7 @@ tb/scoreboard/axi_s_scoreboard.sv
 
 
 tb/agents/axi_stream_sequencer.sv
-// tb/agents/axi_virtual_sequencer.sv
+tb/agents/virtual_sequencer.sv
 tb/agents/axi_stream_monitor.sv
 tb/agents/axi_stream_driver.sv
 tb/agents/axi_stream_agent.sv
@@ -61,3 +61,11 @@ tb/tests/base_test.sv
 tb/tests/axi_rand_test.sv
 tb/tests/axis_data_sanity_test.sv
 tb/top/tb_top.sv
+
+// System BringUp
+tb/sequences/ctrl_cfg_seq.sv
+tb/sequences/axi_matmul_sys_vseq.sv
+// tb/agents/virtual_sequencer.sv
+tb/env/axi_mat_accr_sys_env.sv
+
+tb/tests/axi_matmul_sys_test.sv

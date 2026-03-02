@@ -11,6 +11,8 @@ class axi_env extends uvm_env;
     
     axi_s_scoreboard scoreboard;
 
+    virtual_sequencer vseqr;
+
     function new(string name, uvm_component parent);
         super.new(name, parent);
     endfunction
@@ -22,9 +24,10 @@ class axi_env extends uvm_env;
         axi_passive  = axi_lite_agent::type_id::create("axi_passive",  this);
         scb         = axi_scoreboard::type_id::create("scb",  this);
         
-        axi_active.is_active  = UVM_PASSIVE;
-        axi_passive.is_active = UVM_PASSIVE;
+        axi_active.is_active  = UVM_ACTIVE;
+        axi_passive.is_active = UVM_ACTIVE;
         
+        vseqr = virtual_sequencer::type_id::create("vseqr", this);
         scoreboard = axi_s_scoreboard::type_id::create("scoreboard", this);
 
         a_agent = axi_stream_agent::type_id::create("a_agent", this);
@@ -72,6 +75,9 @@ class axi_env extends uvm_env;
 
         // if (c_agent.is_active == UVM_ACTIVE)
         //     c_agent.driver.seq_item_port.connect(c_agent.sequencer.seq_item_export);
+
+        // vseqr.ctrl_seqr = axi_active.sequencer;
+        // vseqr.a_seqr = a_agent.sequencer;
     endfunction
 
 endclass

@@ -48,7 +48,7 @@ class axi_stream_driver extends uvm_driver #(axi_stream_packet);
             end
 
             seq_item_port.get_next_item(pkt);
-            `uvm_info("DRV", $sformatf("Got seq, Packet = %p", pkt.data ), UVM_NONE)
+            `uvm_info("DRV", $sformatf("Got seq, %s Packet = %p", role.name(), pkt.data ), UVM_NONE)
 
             for (int i = 0; i < pkt.data.size(); i++) begin
                 bit done = 0;
