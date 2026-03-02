@@ -25,8 +25,8 @@ module matmul_datapath #(
     output logic signed [ACC_W-1:0] C [M][N]
 );
     // internal signals
-    logic signed [DATA_W-1:0] a_mac [2][2];
-    logic signed [DATA_W-1:0] b_mac [2][2];
+    logic signed [DATA_W-1:0] a_mac [M][N];
+    logic signed [DATA_W-1:0] b_mac [M][N];
 
     logic en_q;
 
@@ -51,7 +51,9 @@ module matmul_datapath #(
         // $display("%s B = %p", comp, B);
     end
 
-    mac_array_2x2   #(.DATA_W(DATA_W), .ACC_W(ACC_W)) mac_array (
+    mac_array_mxn #(
+        .DATA_W(DATA_W), .ACC_W(ACC_W), .M(M), .N(N)
+    ) mac_array (
         .clk(clk),
         .rst_n(rst_n),
         .en(en),

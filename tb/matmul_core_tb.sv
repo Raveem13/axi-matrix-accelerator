@@ -2,8 +2,8 @@ module matmul_core_tb #(
     parameter DATA_W = 16,
     parameter ACC_W = 32,
     parameter K = 5,
-    parameter M = 2,
-    parameter N = 2
+    parameter M = 3,
+    parameter N = 3
     );
 
     logic clk;
@@ -20,7 +20,9 @@ module matmul_core_tb #(
     bit mismatch;
 
   // DUT
-  matmul_top m2x2kN_0(
+  matmul_top #(
+    .DATA_W(DATA_W), .ACC_W(ACC_W), .K(K), .M(M), .N(N)
+  ) m2x2kN_0(
     .clk(clk),
     .rst_n(rst_n),
     .start(start),
@@ -50,8 +52,8 @@ module matmul_core_tb #(
 
     // Test 1
     // @(posedge clk);
-    A = '{'{1,2,2,2,2},'{3,4,4,4,4}};     // Expected C = A×B
-    B = '{'{5,6},'{7,8},'{5,6},'{7,8},'{5,6}};    
+    A = '{'{1,2,2,2,2},'{3,4,4,4,4}, '{5,6,6,6,6}};     // Expected C = A×B
+    B = '{'{1,5,6},'{1,7,8},'{1,5,6},'{1,7,8},'{1,5,6}};    
     $display("Testbench: A = %p", A);
     $display("Testbench: B = %p", B);
 
@@ -86,9 +88,9 @@ module matmul_core_tb #(
 
       $display("Running Ref model");
       // Maatrix Multplication
-      for (i=0; i<2; ++i) begin
-        for (j=0; j<2; ++j) begin
-          for (k=0; k<5; ++k) begin
+      for (i=0; i<M; ++i) begin
+        for (j=0; j<N; ++j) begin
+          for (k=0; k<K; ++k) begin
               C_ref[i][j] += A_t[i][k] * B_t[k][j];
           end
         end
@@ -117,8 +119,8 @@ module matmul_core_tb #(
       // end
 
       mismatch = 0;
-      for (int i=0; i<2; ++i) begin
-        for (int j=0; j<2; ++j) begin
+      for (int i=0; i<M; ++i) begin
+        for (int j=0; j<N; ++j) begin
           if (C[i][j] !== C_ref[i][j]) begin
             mismatch = 1;
             $error("Mismatch at C[%0d][%0d], DUT = %0d, Exp = %0d", i, j, C[i][j], C_ref[i][j]);

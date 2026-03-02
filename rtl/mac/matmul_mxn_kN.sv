@@ -1,7 +1,7 @@
 module matmul_mxn_kN #(
     parameter DATA_W = 8,
     parameter ACC_W = 32,
-    parameter int K = 2,
+    parameter int K = 3,
     parameter M = 2,
     parameter N = 2
 )(
@@ -19,8 +19,8 @@ module matmul_mxn_kN #(
     // internal signals
     logic en, clear;
     // logic [1:0] k;
-    logic signed [DATA_W-1:0] a_mac [M][K];
-    logic signed [DATA_W-1:0] b_mac [K][N];
+    logic signed [DATA_W-1:0] a_mac [M][N];
+    logic signed [DATA_W-1:0] b_mac [M][N];
     logic [$clog2(K):0] k;
 
     logic en_q;
@@ -105,7 +105,9 @@ module matmul_mxn_kN #(
         end
     end
 
-    mac_array_mxn   mac_array (
+    mac_array_mxn #(
+        .DATA_W(DATA_W), .ACC_W(ACC_W), .M(M), .N(N)
+    )  mac_array (
         .clk(clk),
         .rst_n(rst_n),
         .en(en),

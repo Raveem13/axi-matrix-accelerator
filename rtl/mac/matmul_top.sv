@@ -17,8 +17,8 @@ module matmul_top #(
     output logic done
 );
     // internal signals
-    logic signed [DATA_W-1:0] a_mac [M][K];
-    logic signed [DATA_W-1:0] b_mac [K][N];
+    logic signed [DATA_W-1:0] a_mac [M][N];
+    logic signed [DATA_W-1:0] b_mac [M][N];
 
     logic en, clear;
     logic [$clog2(K):0] k;

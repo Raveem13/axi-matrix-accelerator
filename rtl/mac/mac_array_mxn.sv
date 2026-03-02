@@ -17,7 +17,7 @@ module mac_array_mxn #(
     generate
         for (i=0; i<M; i++) begin
             for (j=0; j<N; j++) begin
-                mac u_mac (
+                mac #(.DATA_W(DATA_W), .ACC_W(ACC_W)) u_mac (
                     .clk(clk),
                     .rst_n(rst_n),
                     .en(en),
