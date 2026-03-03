@@ -69,9 +69,11 @@ module axi_matrix_accelerator #(
     // -------------------------
     // Internal control signals
     // -------------------------
-    logic        start = 0;
+    logic        start;
     logic        done;
-    logic [31:0] cfg_k;
+    logic [DATA_W-1:0] cfg_m;
+    logic [DATA_W-1:0] cfg_n;
+    logic [DATA_W-1:0] cfg_k;
 
     // -------------------------
     // AXI-Lite Control Wrapper
@@ -107,7 +109,9 @@ module axi_matrix_accelerator #(
         .s_axi_rready   (s_axi_rready),
 
         // Control outputs
+        .cfg_m          (cfg_m),
         .cfg_k          (cfg_k),
+        .cfg_n          (cfg_n),
         .start          (start),
         .done           (done)
     );
@@ -141,9 +145,11 @@ module axi_matrix_accelerator #(
         .m_axis_c_tlast     (m_axis_c_tlast),
 
         // Control
-        .cfg_k              (cfg_k), 
-        .start              (start),
-        .done               (done)
+        .cfg_m          (cfg_m),
+        .cfg_k          (cfg_k),
+        .cfg_n          (cfg_n),
+        .start          (start),
+        .done           (done)
     );
 
 endmodule

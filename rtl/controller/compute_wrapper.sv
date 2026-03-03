@@ -1,10 +1,13 @@
 module compute_wrapper #(
     parameter DATA_W = 32,
-    parameter K_MAX =  2
+    parameter M_MAX =  4,
+    parameter K_MAX =  4,
+    parameter N_MAX =  4
 ) (
     input logic clk,
     input logic rst_n,
 
+    // === AXI stream ===
     // AXI-Stream A
     input logic [DATA_W-1:0] s_axis_a_tdata,
     input logic             s_axis_a_tvalid,
@@ -20,25 +23,28 @@ module compute_wrapper #(
     // AXI-Stream C
     output logic [DATA_W-1:0] m_axis_c_tdata,
     output logic             m_axis_c_tvalid,
-    input logic             m_axis_c_tready,
+    input logic              m_axis_c_tready,
     output logic             m_axis_c_tlast,
 
+    // === Config from ctrl plane ===
+    input logic [DATA_W-1:0] cfg_m,
+    input logic [DATA_W-1:0] cfg_k,
+    input logic [DATA_W-1:0] cfg_n,
     // Control
-    input logic [15:0] cfg_k,
     input logic        start,
     output logic       done
 
 );
     // Buffers
-    logic [DATA_W-1:0] A_buf [2][K_MAX];
-    logic [DATA_W-1:0] B_buf [K_MAX][2];
-    logic [DATA_W-1:0] C_buf [2][2];
+    logic [DATA_W-1:0] A_buf [M_MAX][K_MAX] = '{default:0};
+    logic [DATA_W-1:0] B_buf [K_MAX][N_MAX] = '{default:0};
+    logic [DATA_W-1:0] C_buf [M_MAX][N_MAX] = '{default:0};
 
     // Counter
     logic [$clog2(K_MAX):0] k_cnt;
     logic [$clog2(K_MAX):0] a_cnt;
     logic [$clog2(K_MAX):0] b_cnt;
-    logic [2:0] c_cnt;
+    logic [$clog2(K_MAX):0] c_cnt;
 
     
     // Holding C data stable, register the output
@@ -55,6 +61,11 @@ module compute_wrapper #(
     logic sw_clear_done = 0;    // To do : place holder driven by AXI-Lite control reg
 
     string comp = "[Comp_Wrap]";
+
+    // always_ff @(posedge clk) begin
+    //     $display("%t %s M=%0d, N=%0d, K=%0d", $time, comp, m_eff, cfg_n, cfg_k);
+    // end
+
     // fsm states
     typedef enum logic [2:0] {
         IDLE,
@@ -148,7 +159,7 @@ module compute_wrapper #(
 
                 LOAD_A  : 
                     if (s_axis_a_tvalid && s_axis_a_tready) begin
-                        A_buf[a_cnt/2][a_cnt%2] <= s_axis_a_tdata;
+                        A_buf[a_cnt / cfg_m][a_cnt % cfg_k] <= s_axis_a_tdata;
                         if (s_axis_a_tlast)
                             a_cnt <= 0;
                         else
@@ -157,7 +168,7 @@ module compute_wrapper #(
 
                 LOAD_B  :
                     if (s_axis_b_tvalid && s_axis_b_tready) begin
-                        B_buf[b_cnt/2][b_cnt%2] <= s_axis_b_tdata;
+                        B_buf[b_cnt / cfg_k][b_cnt % cfg_n] <= s_axis_b_tdata;
                         if (s_axis_b_tlast)
                             b_cnt <= 0;
                         else
@@ -189,7 +200,7 @@ module compute_wrapper #(
             c_last_reg  <= 0;
         end else begin
             if (state == OUTPUT && !c_valid_reg && m_axis_c_tready) begin
-                c_data_reg  <= C_buf[c_cnt/2][c_cnt%2];     //Place holder or MAC result
+                c_data_reg  <= C_buf[c_cnt / cfg_m][c_cnt % cfg_n];     //Place holder or MAC result
                 c_valid_reg <= 1;
                 c_last_reg  <= (c_cnt == 3);
 
@@ -202,19 +213,19 @@ module compute_wrapper #(
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tdata = %0d, c_tlast=%0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tdata, m_axis_c_tlast);
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, done_pulse = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, done_pulse, done);
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, start = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, start, done);
-            $display("%0t %s %s, a_cnt=%0d b_cnt=%0d, c_tdata = %0d", $time, comp, state.name(), a_cnt, b_cnt, c_data_reg);
+            // $display("%t %s %s, a_cnt=%0d b_cnt=%0d, c_tdata = %0d", $time, comp, state.name(), a_cnt, b_cnt, c_data_reg);
             // $display("%0t[Comp_Wrap] %s, s_axis_: a_tvalid =%0d, a_tready =%0d, a_tlast=%0d, start = %0d", $time, state.name(), s_axis_a_tvalid, s_axis_a_tready, s_axis_a_tlast, start);
-        
+            // $display("%t %s %s M=%0d, N=%0d, K=%0d", $time, comp, state.name(), cfg_m, cfg_n, cfg_k);
         end
     end
 
     // // Gated Logs
-    // always @(posedge clk) begin
-    //     if (state inside {OUTPUT, DONE}) begin
-    //         $display("[%0t] [Comp_Wrap] state=%s: c_tready=%0d, c_tdata=%0d",
-    //                 $time, state.name(), m_axis_c_tready, c_data_reg);
-    //     end
-    // end
+    always @(posedge clk) begin
+        if (state inside {OUTPUT, DONE}) begin
+            $display("[%0t] [Comp_Wrap] state=%s: c_tready=%0d, c_tdata=%0d",
+                    $time, state.name(), m_axis_c_tready, c_data_reg);
+        end
+    end
 
     always @(posedge clk) begin
         if (state inside {LOAD_A, LOAD_B}) begin
@@ -262,14 +273,16 @@ module compute_wrapper #(
     matmul_datapath #(
         .DATA_W (DATA_W),
         .ACC_W  (DATA_W),
-        .M(2),
-        .N(2),
+        .M(M_MAX),
+        .N(N_MAX),
         .K(K_MAX)
     ) u_matmul (
         .clk   (clk),
         .rst_n (rst_n),
         .en    (state == COMPUTE),
         .clear (state == PREPARE),
+        .cfg_m (cfg_m),
+        .cfg_n (cfg_n),
         .k     (k_cnt),
         .A     (A_buf),
         .B     (B_buf),
@@ -294,8 +307,8 @@ module compute_wrapper #(
 
     // Output always exactly 4 beats
     assert property (@(posedge clk)
-        state == OUTPUT |-> c_cnt < 4)
-        else $fatal("assert fail: Output >4 beats");
+        state == OUTPUT |-> c_cnt < cfg_m*cfg_n)
+        else $fatal("assert fail: Output >MxN beats");
 
 
     // Backpressure-aware assertions

@@ -34,9 +34,9 @@ module axi_lite_ctrl_wrapper #(
 
     // ========================
     // Compute core interface
-    output logic [31:0]  cfg_m,
-    output logic [31:0]  cfg_k,
-    output logic [31:0]  cfg_n,
+    output logic [DATA_W-1:0] cfg_m,
+    output logic [DATA_W-1:0] cfg_k,
+    output logic [DATA_W-1:0] cfg_n,
 
     output logic    start,
     input  logic    done
@@ -256,6 +256,10 @@ module axi_lite_ctrl_wrapper #(
         // $display("%t [AXI_Wrap] start = %0d , done = %0d, ctrl_start = %0d, status[0] = %0d, control[0] = %0d",  $time, start, done, ctrl_start, status_reg[0], ctrl_reg[0]);    
     end
 
+    // always_ff @(posedge clk or negedge rst_n) begin
+    //     $display("%t [AXI_Wrap] M=%0d, N=%0d, K=%0d", $time, cfg_m, cfg_n, cfg_k);
+    // end
+
 `ifndef SYNTHESIS
 
 // A. Start is one-cycle pulse
@@ -265,12 +269,12 @@ assert property (@(posedge clk)
 else $fatal("start not single-cycle");
 
 // B. Start only from CTRL write
-// `ifndef STREAM_ONLY_TEST
-// assert property (@(posedge clk)
-//     start |-> $past(write_fire && s_axi_awaddr == 32'h00)
-// ) 
-// else $fatal("START without CTRL write");
-// `endif
+`ifndef STREAM_ONLY_TEST
+assert property (@(posedge clk)
+    start |-> $past(write_fire && s_axi_awaddr == 32'h00)
+) 
+else $fatal("START without CTRL write");
+`endif
 
 // C. STATUS latches done
 assert property (@(posedge clk)

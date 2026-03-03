@@ -13,11 +13,11 @@ module tb_top;
         rst_n   = 0;
         #20 rst_n   =   1;
 
-        dut0.u_ctrl.cfg_k_reg = 32'h02;
-        @(posedge clk);
-        dut0.u_ctrl.start = 1;
-        @(posedge clk);
-        dut0.u_ctrl.start = 0;
+        // dut0.u_ctrl.cfg_k_reg = 32'h02;
+        // @(posedge clk);
+        // dut0.u_ctrl.start = 1;
+        // @(posedge clk);
+        // dut0.u_ctrl.start = 0;
     end
 
     axi_lite_if axi_if0(.clk(clk), .rst_n(rst_n));

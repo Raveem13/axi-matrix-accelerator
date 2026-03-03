@@ -17,6 +17,8 @@ module matmul_datapath #(
     input logic rst_n,
     input logic en,
     input logic clear,
+    input logic [DATA_W-1:0] cfg_m,
+    input logic [DATA_W-1:0] cfg_n,
     input logic [$clog2(K):0] k,
     
     input logic signed [DATA_W-1:0] A [M][K],
@@ -41,14 +43,14 @@ module matmul_datapath #(
 
     // Data mapping
     always_comb begin
-        for (int i=0; i<M; ++i) begin
-            for (int j=0; j<N; ++j) begin
+        for (int i=0; i<cfg_m; ++i) begin
+            for (int j=0; j<cfg_n; ++j) begin
                 a_mac[i][j] = A[i][k];
                 b_mac[i][j] = B[k][j];
             end
         end
-        // $display("%s A = %p", comp, A);
-        // $display("%s B = %p", comp, B);
+        $display("%s A = %p", comp, A);
+        $display("%s B = %p", comp, B);
     end
 
     mac_array_mxn #(

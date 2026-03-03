@@ -2,19 +2,24 @@
 // mac files
 rtl/top.sv
 rtl/mac/mac.sv
-rtl/mac/mac_array_2x2.sv
+// rtl/mac/mac_array_2x2.sv
 // rtl/mac/matmul_2x2_k2.sv
+rtl/mac/mac_array_mxn.sv
 // rtl/mac/matmul_2x2_kN.sv
+rtl/mac/matmul_mxn_kN.sv
 rtl/mac/matmul_top.sv
 
 rtl/axi/axi_lite_ctrl_wrapper.sv
 
 // controller files
 rtl/controller/controller_fsm.sv
-rtl/controller/compute_wrapper.sv
 
 rtl/mac/matmul_ctrlpath.sv
 rtl/mac/matmul_datapath.sv
+
+rtl/controller/compute_wrapper.sv
+
+rtl/axi_matrix_accelerator.sv
 
 // ---- test-benches ----
 // tb package file
@@ -64,8 +69,8 @@ tb/top/tb_top.sv
 
 // System BringUp
 tb/sequences/ctrl_cfg_seq.sv
+tb/sequences/axi_lite_read_seq.sv
 tb/sequences/axi_matmul_sys_vseq.sv
-// tb/agents/virtual_sequencer.sv
 tb/env/axi_mat_accr_sys_env.sv
 
 tb/tests/axi_matmul_sys_test.sv

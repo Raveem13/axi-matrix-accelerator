@@ -2,6 +2,7 @@ class axi_matmul_sys_vseq extends uvm_sequence;
     `uvm_object_utils(axi_matmul_sys_vseq)
 
     virtual_sequencer vseqr;
+    virtual axi_lite_if vif;
 
     function new(string name = "axi_matmul_sys_vseq");
       super.new(name);
@@ -13,6 +14,10 @@ class axi_matmul_sys_vseq extends uvm_sequence;
       axis_simple_seq  send_b;
       axis_simple_seq  send_c;
 
+      // Raise objection HERE
+      // if (starting_phase != null)
+      //   starting_phase.raise_objection(this);
+
       // Cast sequencer
       if (!$cast(vseqr, m_sequencer))
         `uvm_fatal("VSEQ", "Virtual sequencer cast failed")
@@ -21,13 +26,19 @@ class axi_matmul_sys_vseq extends uvm_sequence;
       cfg_seq = ctrl_cfg_seq::type_id::create("cfg_seq");
       cfg_seq.start(vseqr.ctrl_seqr);
 
-      // Send matrix A
-      send_a = axis_simple_seq::type_id::create("send_a");
-      send_a.start(vseqr.a_seqr);
+      fork
+        begin
+          // Send matrix A
+          send_a = axis_simple_seq::type_id::create("send_a");
+          send_a.start(vseqr.a_seqr);
+        end 
 
-      // Send matrix B
-      send_b = axis_simple_seq::type_id::create("send_b");
-      send_b.start(vseqr.b_seqr);
+        begin
+          // Send matrix B
+          send_b = axis_simple_seq::type_id::create("send_b");
+          send_b.start(vseqr.b_seqr);
+        end
+      join
 
       // Send C tready
       send_c = axis_simple_seq::type_id::create("send_c");
@@ -37,25 +48,26 @@ class axi_matmul_sys_vseq extends uvm_sequence;
       // read status / poll register
       // wait_for_done();
 
+      // Drop objection ONLY after everything is done
+      // if (starting_phase != null)
+      //   starting_phase.drop_objection(this);
     endtask
+    
+    // task wait_for_done();
+    //   axi_lite_read_seq rd_seq;
+    //   bit done;
 
-    task wait_for_done();
-      axi_lite_item rd;
-      bit done = 0;
+    //   forever begin
+    //     rd_seq = axi_lite_read_seq::type_id::create("rd_seq");
+    //     rd_seq.addr = 32'h04; // STATUS reg
 
-      forever begin
-        rd = axi_lite_item::type_id::create("rd");
+    //     rd_seq.start(vseqr.ctrl_seqr);
 
-        start_item(rd);
-        finish_item(rd);
+    //     done = rd_seq.rdata[0];
+    //     do @(posedge vif.clk);
+    //     while (done == 0);
 
-        done = rd.rdata[0];
-
-        if (done) begin
-          break;
-        end
-
-        #100ns;
-      end
-    endtask
+    //     #(100ns);
+    //   end
+    // endtask
 endclass
