@@ -49,8 +49,8 @@ module matmul_datapath #(
                 b_mac[i][j] = B[k][j];
             end
         end
-        $display("%s A = %p", comp, A);
-        $display("%s B = %p", comp, B);
+        // $display("%s A = %p", comp, A);
+        // $display("%s B = %p", comp, B);
     end
 
     mac_array_mxn #(

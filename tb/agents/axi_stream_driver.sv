@@ -6,7 +6,8 @@ class axi_stream_driver extends uvm_driver #(axi_stream_packet);
     virtual axi_lite_if vif;
     axis_role_e role;
     int n;
-
+    int pre_gap;
+    
     function new(string name = "axi_stream_driver", uvm_component parent);
         super.new(name, parent);
     endfunction: new
@@ -36,19 +37,27 @@ class axi_stream_driver extends uvm_driver #(axi_stream_packet);
         forever begin
             
             if (role == AXIS_C) begin
-                // `uvm_info("DRV", "AXIS_C: randomizaed tready", UVM_NONE)
                 @(posedge vif.clk);
                 if (!vif.rst_n) begin
                     vif.c_tready <= 1'b0;
                 end else begin
+                    // vif.c_tready <= 1'b1;    // Always ready
                     // Random c_tready test
-                    vif.c_tready <= $urandom_range(0,1);
+                    // vif.c_tready <= $urandom_range(0,1);
+                    pre_gap = $urandom_range(0,3);
+                    if (pre_gap) begin
+                        vif.c_tready <= 1'b0;    // stall
+                        repeat(pre_gap) @(posedge vif.clk);
+                        `uvm_info("DRV", $sformatf("C: tready Stall=%0d cycles", pre_gap), UVM_NONE)
+                    end else begin
+                        vif.c_tready <= 1'b1;
+                    end
                 end
                 continue;
             end
 
             seq_item_port.get_next_item(pkt);
-            `uvm_info("DRV", $sformatf("Got seq, %s Packet = %p", role.name(), pkt.data ), UVM_NONE)
+            `uvm_info("DRV", $sformatf("Got seq, %s Packet = %p, size=%0d", role.name(), pkt.data, pkt.data.size()), UVM_NONE)
 
             for (int i = 0; i < pkt.data.size(); i++) begin
                 bit done = 0;
@@ -56,17 +65,21 @@ class axi_stream_driver extends uvm_driver #(axi_stream_packet);
                 if (role == AXIS_A) begin
                 
                 vif.a_tdata  <= pkt.data[i];
+                pre_gap = $urandom_range(0,3);
+                repeat(pre_gap) @(posedge vif.clk);
                 vif.a_tvalid <= 1'b1;
                 vif.a_tlast  <= (i == pkt.data.size()-1);
-                `uvm_info("DRV", $sformatf("A: Data[%0d]=%0d size=%0d", i, pkt.data[i], pkt.data.size()), UVM_NONE)
+                `uvm_info("DRV", $sformatf("A: Data[%0d]=%0d, Stall=%0d cycles", i, pkt.data[i], pre_gap), UVM_NONE)
                 end
 
                 else if (role == AXIS_B) begin
                 
                 vif.b_tdata  <= pkt.data[i];
+                pre_gap = $urandom_range(0,3);
+                repeat(pre_gap) @(posedge vif.clk);
                 vif.b_tvalid <= 1'b1;
                 vif.b_tlast  <= (i == pkt.data.size()-1);
-                `uvm_info("DRV", $sformatf("B: Data[%0d]=%0d size=%0d", i, pkt.data[i], pkt.data.size()), UVM_NONE)
+                `uvm_info("DRV", $sformatf("B: Data[%0d]=%0d, Stall=%0d cycles", i, pkt.data[i], pre_gap), UVM_NONE)
                 end
 
                 // HOLD until handshake

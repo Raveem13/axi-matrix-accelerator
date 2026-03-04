@@ -9,9 +9,39 @@ class axi_stream_monitor extends uvm_monitor;
     axis_role_e role;
     axi_s_scoreboard scoreboard;
 
+    covergroup cg_axis_stream_bp;
+        option.per_instance = 1;
+
+        cp_src_A_stall : coverpoint (vif.a_tready && !vif.a_tvalid) {
+            bins A_stall = {1};
+        }
+
+        cp_A_handshake : coverpoint (vif.a_tready && vif.a_tvalid) {
+            bins A_go = {1};
+        }
+
+        cp_src_B_stall : coverpoint (vif.b_tready && !vif.b_tvalid) {
+            bins B_stall = {1};
+        }
+
+        cp_B_handshake : coverpoint (vif.b_tready && vif.b_tvalid) {
+            bins B_go = {1};
+        }
+
+        cp_src_C_stall : coverpoint (vif.c_tready && !vif.c_tvalid) {
+            bins C_stall = {1};
+        }
+
+        cp_C_handshake : coverpoint (vif.c_tready && vif.c_tvalid) {
+            bins C_go = {1};
+        }
+
+    endgroup
+
     function new(string name, uvm_component parent);
         super.new(name, parent);
         ap  = new("ap", this);
+        cg_axis_stream_bp = new();
     endfunction //new()
 
     function void build_phase(uvm_phase phase);
@@ -39,6 +69,7 @@ class axi_stream_monitor extends uvm_monitor;
 
         forever begin
             @(posedge vif.clk);
+            cg_axis_stream_bp.sample();
             
             case (role)
                 AXIS_A : begin

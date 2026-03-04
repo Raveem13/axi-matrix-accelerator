@@ -219,9 +219,9 @@ module compute_wrapper #(
         end
     end
 
-    // // Gated Logs
+    // Gated Logs
     always @(posedge clk) begin
-        if (state inside {OUTPUT, DONE}) begin
+        if (state === OUTPUT) begin
             $display("[%0t] [Comp_Wrap] state=%s: c_tready=%0d, c_tdata=%0d",
                     $time, state.name(), m_axis_c_tready, c_data_reg);
         end
