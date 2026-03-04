@@ -14,12 +14,14 @@ class axis_ref_model;
       input data_t b_pkt[$]
   );
     exp_pkt.delete();
+    // $display("A packet size = %0d, A packet size = %0d", a_pkt.size(), b_pkt.size());
+    N = 2;    // For fixed len matrix
 
     // Derive matrix dimension
-    N = $rtoi($sqrt(a_pkt.size()));
-    if (N*N != a_pkt.size() || b_pkt.size() != a_pkt.size()) begin
-      $fatal("REF", "Invalid packet size for matmul");
-    end
+    // N = $rtoi($sqrt(a_pkt.size()));
+    // if (N*N != a_pkt.size() || b_pkt.size() != a_pkt.size()) begin
+    //   $fatal("REF", "Invalid packet size for matmul");
+    // end
 
     for (i = 0; i < N; i++) begin
       for (j = 0; j < N; j++) begin

@@ -16,11 +16,11 @@ class axis_simple_seq extends uvm_sequence #(axi_stream_packet);
     
     // pkt.data = '{32'h1, 32'h2, 32'h3, 32'h4};
 
-    pkt_len = 4;
-    pkt.data.delete();          // Important if packet reused
-
+    pkt.data.delete();          // If packet reused
+    
+    pkt_len = $urandom_range(1, 4);
     repeat (pkt_len) begin
-      pkt.data.push_back($urandom_range(1,10));
+      pkt.data.push_back($urandom_range(1,100));
     end
 
     pkt.last = 1;
