@@ -305,12 +305,12 @@ axi_matrix_accelerator/
 
 ## Current Status
 
-[x] AXI4-Lite verification complete
-[x] AXI4-Stream verification complete
-[x] Backpressure testing complete
-[x] Reference model & scoreboard complete
-[x] Functional coverage implemented
-[x] System-level UVM bring-up completed
+✅ AXI4-Lite verification complete
+✅ AXI4-Stream verification complete
+✅ Backpressure testing complete
+✅ Reference model & scoreboard complete
+✅ Functional coverage implemented
+✅ System-level UVM bring-up completed
 
 <!-- ---
 
