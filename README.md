@@ -199,7 +199,7 @@ This phase focuses on **end-to-end system verification**.
 
 ---
 
-## 🧪 Verification Architecture (Layered Methodology)
+## Verification Architecture (Layered Methodology)
 
 The UVM testbench itself follows a **layered verification abstraction**:
 
