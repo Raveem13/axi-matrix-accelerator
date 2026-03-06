@@ -77,6 +77,9 @@ This phase focuses on **pure RTL design and local verification**, before introdu
 * Separate **datapath and control FSM**
 * Compile-time parameterization (sizes, widths)
 
+**Structure of MAC Unit**
+![alt text](doc/images/01_MAC_block_dia.png)
+
 **Verification**
 
 * Directed SystemVerilog testbench
