@@ -302,9 +302,8 @@ axi_matrix_accelerator/
 │   ├── tests/
 │   └── scoreboard/
 ├── scripts/
-├── coverage/
-│   └── reports/
-│       └── r01_system_cov/
+├── reports/
+│       └── r0x_system_cov/
 ├── docs/
 └── README.md
 ```
