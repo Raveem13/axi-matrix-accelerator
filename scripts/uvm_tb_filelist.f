@@ -1,3 +1,7 @@
+// tb package file
+tb/tb_pkg.sv
+tb/common/axi_types.sv
+
 //---- rtl files ----
 // mac files
 rtl/top.sv
@@ -22,9 +26,7 @@ rtl/controller/compute_wrapper.sv
 rtl/axi_matrix_accelerator.sv
 
 // ---- test-benches ----
-// tb package file
-tb/tb_pkg.sv
-tb/common/axi_types.sv
+
 // tb/reg/axi_regs.sv
 
 //  Interface
@@ -69,8 +71,8 @@ tb/top/tb_top.sv
 
 // System BringUp
 tb/sequences/ctrl_cfg_seq.sv
+tb/sequences/cfg_read_seq.sv
 tb/sequences/axi_lite_read_seq.sv
 tb/sequences/axi_matmul_sys_vseq.sv
 tb/env/axi_mat_accr_sys_env.sv
-
 tb/tests/axi_matmul_sys_test.sv

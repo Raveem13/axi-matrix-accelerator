@@ -17,6 +17,8 @@ class axi_matmul_sys_test extends uvm_test;
 
         phase.raise_objection(this);
 
+        // phase.phase_done.set_drain_time(this, 200);     // 200ns then force exit
+        
         vseq = axi_matmul_sys_vseq::type_id::create("vseq");
         vseq.start(env.vseqr);
 

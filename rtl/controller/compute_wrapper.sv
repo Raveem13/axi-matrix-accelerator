@@ -221,14 +221,14 @@ module compute_wrapper #(
 
     // Gated Logs
     always @(posedge clk) begin
-        if (state === OUTPUT) begin
+        if (state inside {OUTPUT, DONE}) begin
             $display("[%0t] [Comp_Wrap] state=%s: c_tready=%0d, c_tlast=%0d, c_tdata=%0d",
                     $time, state.name(), m_axis_c_tready, m_axis_c_tlast, c_data_reg);
         end
     end
 
     always @(posedge clk) begin
-        if (state inside {LOAD_A, LOAD_B}) begin
+        if (state inside {IDLE, LOAD_A}) begin
             $display("%0t[Comp_Wrap] %s, s_axis_: a_tvalid =%0d, a_tready =%0d, a_tlast=%0d, a_tdata = %0d", $time, state.name(), s_axis_a_tvalid, s_axis_a_tready, s_axis_a_tlast, s_axis_a_tdata);
         end
         if (state inside {LOAD_A, LOAD_B}) begin

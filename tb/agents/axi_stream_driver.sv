@@ -64,22 +64,22 @@ class axi_stream_driver extends uvm_driver #(axi_stream_packet);
 
                 if (role == AXIS_A) begin
                 
-                vif.a_tdata  <= pkt.data[i];
-                pre_gap = $urandom_range(0,3);
-                repeat(pre_gap) @(posedge vif.clk);
-                vif.a_tvalid <= 1'b1;
-                vif.a_tlast  <= (i == pkt.data.size()-1);
-                `uvm_info("DRV", $sformatf("A: Data[%0d]=%0d, Stall=%0d cycles", i, pkt.data[i], pre_gap), UVM_NONE)
+                    vif.a_tdata  <= pkt.data[i];
+                    pre_gap = $urandom_range(0,3);
+                    repeat(pre_gap) @(posedge vif.clk);
+                    vif.a_tvalid <= 1'b1;
+                    vif.a_tlast  <= (i == pkt.data.size()-1);
+                    `uvm_info("DRV", $sformatf("A: Data[%0d]=%0d, Stall=%0d cycles", i, pkt.data[i], pre_gap), UVM_NONE)
                 end
 
                 else if (role == AXIS_B) begin
                 
-                vif.b_tdata  <= pkt.data[i];
-                pre_gap = $urandom_range(0,3);
-                repeat(pre_gap) @(posedge vif.clk);
-                vif.b_tvalid <= 1'b1;
-                vif.b_tlast  <= (i == pkt.data.size()-1);
-                `uvm_info("DRV", $sformatf("B: Data[%0d]=%0d, Stall=%0d cycles", i, pkt.data[i], pre_gap), UVM_NONE)
+                    vif.b_tdata  <= pkt.data[i];
+                    pre_gap = $urandom_range(0,3);
+                    repeat(pre_gap) @(posedge vif.clk);
+                    vif.b_tvalid <= 1'b1;
+                    vif.b_tlast  <= (i == pkt.data.size()-1);
+                    `uvm_info("DRV", $sformatf("B: Data[%0d]=%0d, Stall=%0d cycles", i, pkt.data[i], pre_gap), UVM_NONE)
                 end
 
                 // HOLD until handshake

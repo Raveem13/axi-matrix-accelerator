@@ -8,7 +8,7 @@ class ctrl_cfg_seq extends uvm_sequence #(axi_lite_item);
     virtual task body();
         axi_lite_item tr;
 
-        `uvm_info("SEQ", "Starting basic AXI-Lite sequence", UVM_LOW)
+        `uvm_info("SEQ", "Starting AXI-Lite configuration sequence", UVM_LOW)
 
         tr  = axi_lite_item::type_id::create("m_tr");
         start_item(tr);
@@ -43,7 +43,7 @@ class ctrl_cfg_seq extends uvm_sequence #(axi_lite_item);
         // start_item(tr);
         // finish_item(tr);
 
-        `uvm_info("SEQ", "Finished basic AXI-Lite sequence", UVM_LOW)
+        `uvm_info("SEQ", "Finished AXI-Lite config sequence", UVM_LOW)
         
     endtask
 endclass

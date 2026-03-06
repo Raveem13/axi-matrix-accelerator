@@ -45,6 +45,7 @@ package tb_pkg;
 
   // System bringup
   `include "sequences/ctrl_cfg_seq.sv"
+  `include "sequences/cfg_read_seq.sv"
   `include "sequences/axi_lite_read_seq.sv"
   `include "sequences/axi_matmul_sys_vseq.sv"
   `include "env/axi_mat_accr_sys_env.sv"

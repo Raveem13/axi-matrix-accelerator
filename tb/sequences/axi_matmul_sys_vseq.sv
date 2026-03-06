@@ -2,53 +2,66 @@ class axi_matmul_sys_vseq extends uvm_sequence;
     `uvm_object_utils(axi_matmul_sys_vseq)
 
     virtual_sequencer vseqr;
-    virtual axi_lite_if vif;
+    // virtual axi_lite_if vif;
+
+    ctrl_cfg_seq   cfg_w_seq;
+    cfg_read_seq   cfg_r_seq;
+    axi_lite_read_seq rd_seq;
+
+    axis_simple_seq  send_a;
+    axis_simple_seq  send_b;
+    axis_simple_seq  send_c;
 
     function new(string name = "axi_matmul_sys_vseq");
       super.new(name);
     endfunction
 
     task body();
-      ctrl_cfg_seq   cfg_seq;
-      axis_simple_seq  send_a;
-      axis_simple_seq  send_b;
-      axis_simple_seq  send_c;
-
-      // Raise objection HERE
+      `uvm_info("VSEQ", "Starting layered vseq", UVM_NONE)
+      
       // if (starting_phase != null)
       //   starting_phase.raise_objection(this);
 
-      // Cast sequencer
+      cfg_w_seq = ctrl_cfg_seq::type_id::create("cfg_w_seq");
+      cfg_r_seq = cfg_read_seq::type_id::create("cfg_r_seq");
+      rd_seq = axi_lite_read_seq::type_id::create("rd_seq");
+
+      send_a = axis_simple_seq::type_id::create("send_a");
+      send_b = axis_simple_seq::type_id::create("send_b");
+      send_c = axis_simple_seq::type_id::create("send_c");
+
+      // // Cast sequencer
       if (!$cast(vseqr, m_sequencer))
         `uvm_fatal("VSEQ", "Virtual sequencer cast failed")
 
-      // Program control plane FIRST
-      cfg_seq = ctrl_cfg_seq::type_id::create("cfg_seq");
-      cfg_seq.start(vseqr.ctrl_seqr);
+      // Program control plane
+      // configuration write
+      cfg_w_seq.start(vseqr.ctrl_seqr);
+      // configuration write
+      cfg_r_seq.start(vseqr.ctrl_seqr);
 
       fork
         begin
           // Send matrix A
-          send_a = axis_simple_seq::type_id::create("send_a");
           send_a.start(vseqr.a_seqr);
         end 
 
         begin
           // Send matrix B
-          send_b = axis_simple_seq::type_id::create("send_b");
           send_b.start(vseqr.b_seqr);
         end
       join
 
-      // Send C tready
-      send_c = axis_simple_seq::type_id::create("send_c");
-      send_c.start(vseqr.c_seqr);
-
+      fork
+        // Send C tready
+        send_c.start(vseqr.c_seqr);
+      
+        // read status / poll register
+        rd_seq.start(vseqr.ctrl_seqr);
+      join
+      
       // (Optional) wait for DONE or interrupt
-      // read status / poll register
       // wait_for_done();
-
-      // Drop objection ONLY after everything is done
       // if (starting_phase != null)
       //   starting_phase.drop_objection(this);
     endtask
