@@ -78,6 +78,7 @@ This phase focuses on **pure RTL design and local verification**, before introdu
 * Compile-time parameterization (sizes, widths)
 
 **Structure of MAC Unit**
+
 ![alt text](doc/images/01_MAC_block_dia.png)
 
 **Verification**
