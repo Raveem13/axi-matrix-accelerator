@@ -79,7 +79,7 @@ This phase focuses on **pure RTL design and local verification**, before introdu
 
 **Structure of MAC Unit**
 
-![alt text](doc/images/01_MAC_block_dia.png)
+![alt text](doc/images/02_MAC_Unit.svg)
 
 **Verification**
 
@@ -312,9 +312,9 @@ axi_matrix_accelerator/
 
 ## Current Status
 
-✅ AXI4-Lite verification complete
-✅ AXI4-Stream verification complete
-✅ Backpressure testing complete
+✅ Control plane verification complete
+✅ Data plane verification complete
+✅ Random Stall & Backpressure testing complete
 ✅ Reference model & scoreboard complete
 ✅ Functional coverage implemented
 ✅ System-level UVM bring-up completed
@@ -330,7 +330,7 @@ axi_matrix_accelerator/
 
 ---
 
-## 👤 Author
+## Author
 
 **Raveem Gouda**
 
