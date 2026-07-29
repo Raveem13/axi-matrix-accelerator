@@ -282,7 +282,7 @@ This is treated as a **core learning and design goal**, not an afterthought.
 
 For setting up Vivado on local machine, check this link:
 
-https://github.com/Raveem13/VivadoXSIM-UVM_verification
+https://github.com/Raveem13/VivadoXSIM-UVM_verification#vivado-xsim--installation-setup--simulation-flow
 
 ---
 
