@@ -6,6 +6,8 @@ This project implements a **parameterized AXI-based matrix computation accelerat
 
 The focus of this project is **verification-first design**, demonstrating how real-world silicon teams verify **control plane (AXI4-Lite)** and **data plane (AXI4-Stream)** interfaces, handle **backpressure**, build **reference models**, and achieve **coverage-driven closure**.
 
+>Note: I used AXI just to explore AXI working, actual accelerators uses NVLink, CXL, etc.
+
 This repository reflects **end-to-end verification ownership**, from RTL bring-up to system-level UVM verification and regression readiness.
 
 ---
@@ -37,7 +39,7 @@ This repository reflects **end-to-end verification ownership**, from RTL bring-u
 
 ---
 ### 🔹 Block Diagram
-![alt text](doc/images/01Architecture_Diagram.svg)
+![Arch Blockdiagram](doc/images/01Architecture_Diagram.svg)
 
 >The accelerator separates the control and data planes.
 
@@ -79,7 +81,10 @@ This phase focuses on **pure RTL design and local verification**, before introdu
 
 **Structure of MAC Unit**
 
-![alt text](doc/images/02_MAC_Unit.svg)
+![MAC structure](doc/images/02_MAC_Unit.svg)
+
+**Matrix Multiplication on a MAC Core (2×2 Example)**
+![MatMul on MAC array](doc/images/human_vs_mac_2x2.gif)
 
 **Verification**
 
@@ -97,7 +102,7 @@ This phase focuses on **pure RTL design and local verification**, before introdu
   * Accumulate enable correctness
   * Overflow / valid sequencing
 
-![alt text](doc/images/02Compute_Architecture.svg)
+![Compute core Arch](doc/images/02Compute_Architecture.svg)
 
 ---
 
@@ -222,7 +227,7 @@ The UVM testbench itself follows a **layered verification abstraction**:
 The verification environment follows a layered UVM architecture with
 separate agents for control and data planes.
 
-![alt text](doc/images/04UVM_tb_architecture.svg)
+![UVM arch](doc/images/04UVM_tb_architecture.svg)
 
 ### Components Implemented
 
@@ -252,9 +257,9 @@ Coverage is used as a **closure and guidance tool**, not as a checkbox.
 
 <!-- Todo: **Add screenshot here (optional):** -->
 
-* Functional coverage summary page
+* Functional coverage summary 
   <!-- Todo: **Link only (not embed):** -->
-* `reports/r0x_system_cov/dashboard.html`
+  [`reports/r0x_system_cov/`](./reports/r05_uvm_sys_stream_bp)
 
 ---
 
@@ -312,12 +317,12 @@ axi_matrix_accelerator/
 
 ## Current Status
 
-✅ Control plane verification complete
-✅ Data plane verification complete
-✅ Random Stall & Backpressure testing complete
-✅ Reference model & scoreboard complete
-✅ Functional coverage implemented
-✅ System-level UVM bring-up completed
+* [x] Control plane verification complete
+* [x] Data plane verification complete
+* [x] Random Stall & Backpressure testing complete
+* [x] Reference model & scoreboard complete
+* [x] Functional coverage implemented
+* [x] System-level UVM bring-up completed
 
 <!-- ---
 
@@ -334,6 +339,10 @@ axi_matrix_accelerator/
 
 **Raveem Gouda**
 
+---
+>Image credits:
+- *All block diagrams Created by me with draw.io.*
+- *Matrix multiplication visualization (2×2 MAC array animation) generated with the help of Claude (Anthropic).*
 ---
 
 ⭐ Found this repo helpful? Give it a star to show your support and help others discover it too!
