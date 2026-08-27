@@ -7,7 +7,10 @@ module comp_wrapper_tb13_fsm;
     logic   rst_n;
 
     // Control
-    logic [15:0] cfg_k;
+    logic [DATA_W-1:0] cfg_k;
+    logic [DATA_W-1:0] cfg_m;
+    logic [DATA_W-1:0] cfg_n;
+
     logic   start;          
     logic   done;
 
@@ -50,6 +53,9 @@ module comp_wrapper_tb13_fsm;
         .m_axis_c_tlast(c_tlast),
 
         .cfg_k(cfg_k),
+        .cfg_m(cfg_m),
+        .cfg_n(cfg_n),
+
         .start(start),
         .done(done)
     );
@@ -82,6 +88,8 @@ module comp_wrapper_tb13_fsm;
        
         start = 0;
         cfg_k = 1;
+        cfg_m = 2;
+        cfg_n = 2;
 
         repeat(5) @(posedge clk);
         rst_n = 1;

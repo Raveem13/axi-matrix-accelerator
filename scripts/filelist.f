@@ -28,9 +28,9 @@ tb/matmul_2x2_kN_tb.sv
 tb/matmul_mxn_kN_tb.sv
 tb/matmul_core_tb.sv
 tb/axi_lite_ctrl_wrapper_tb.sv
-// tb/comp_wrapper_tb13_fsm.sv
-// tb/comp_wrapper_tb14_backpress.sv
-// tb/comp_wrapper_tb15_doneIntr.sv
+tb/comp_wrapper_tb13_fsm.sv
+tb/comp_wrapper_tb14_backpress.sv
+tb/comp_wrapper_tb15_doneIntr.sv
 tb/comp_wrapper_tb16_stress.sv
 
 tb/tb_axi_mat_accr.sv

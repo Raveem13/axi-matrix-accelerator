@@ -213,9 +213,10 @@ module compute_wrapper #(
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tdata = %0d, c_tlast=%0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tdata, m_axis_c_tlast);
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, done_pulse = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, done_pulse, done);
             // $display("%0t %S, m_axis_: c_tvalid =%0d, c_tready =%0d, c_tlast=%0d, start = %0d, done_reg = %0d", $time, state.name(), m_axis_c_tvalid, m_axis_c_tready, m_axis_c_tlast, start, done);
-            // $display("%t %s %s, a_cnt=%0d b_cnt=%0d, c_cnt = %0d", $time, comp, state.name(), a_cnt, b_cnt, c_cnt);
+            // $display("%t %s %s, a_cnt=%0d b_cnt=%0d, c_cnt = %0d, k_cnt = %0d", $time, comp, state.name(), a_cnt, b_cnt, c_cnt, k_cnt);
             // $display("%0t[Comp_Wrap] %s, s_axis_: a_tvalid =%0d, a_tready =%0d, a_tlast=%0d, start = %0d", $time, state.name(), s_axis_a_tvalid, s_axis_a_tready, s_axis_a_tlast, start);
             // $display("%t %s %s M=%0d, N=%0d, K=%0d", $time, comp, state.name(), cfg_m, cfg_n, cfg_k);
+            
         end
     end
 
@@ -293,22 +294,21 @@ module compute_wrapper #(
     // No data accepted outside LOAD states
     assert property (@(posedge clk)
         (s_axis_a_tvalid && s_axis_a_tready) |-> state == LOAD_A)
-        else $fatal("assert fail: data A accepted outside LOAD A states");
+        else $fatal(1,"assert fail: data A accepted outside LOAD A states");
 
     assert property (@(posedge clk)
         (s_axis_b_tvalid && s_axis_b_tready) |-> state == LOAD_B)
-        else $fatal("assert fail: data B accepted outside LOAD B states");
+        else $fatal(1,"assert fail: data B accepted outside LOAD B states");
 
     // Compute runs exactly K cycles
     assert property (@(posedge clk)
         (state == COMPUTE) |-> k_cnt < cfg_k)
-        else $fatal("assert fail: Compute run K+ cycles");
-
+        else $fatal(1,"assert fail: Compute run K+ cycles");
 
     // Output always exactly 4 beats
     assert property (@(posedge clk)
         state == OUTPUT |-> c_cnt < cfg_m*cfg_n)
-        else $fatal("assert fail: Output >MxN beats");
+        else $fatal(1,"assert fail: Output >MxN beats");
 
 
     // Backpressure-aware assertions
@@ -317,14 +317,14 @@ module compute_wrapper #(
         $past(m_axis_c_tvalid) && m_axis_c_tvalid && !m_axis_c_tready |->
         $stable(m_axis_c_tdata) && $stable(m_axis_c_tlast)
     )
-        else $fatal("assert fail: data not stable while stalled");
+        else $fatal(1,"assert fail: data not stable while stalled");
 
     // Counters only move on handshake
     assert property (@(posedge clk)
         (state == OUTPUT) && (c_cnt != $past(c_cnt)) |->
         $past(m_axis_c_tvalid && m_axis_c_tready)
     )
-    else $fatal("assert fail: c_counter =%0d on no-handshake", c_cnt);
+    else $fatal(1,"assert fail: c_counter =%0d on no-handshake", c_cnt);
     // OR
     // assert property (@(posedge clk)
     //     (state == OUTPUT) &&
@@ -337,13 +337,13 @@ module compute_wrapper #(
     assert property (@(posedge clk)
         m_axis_c_tlast |-> (state == OUTPUT && c_cnt == 3)
     )
-        else $fatal("assert fail: tlast not per burst");
+        else $fatal(1,"assert fail: tlast not per burst");
 
     // No output without start / No output outside OUTPUT state
     assert property (@(posedge clk)
         m_axis_c_tvalid |-> state == OUTPUT
     )
-        else $fatal("assert fail: output outside OUTPUT state");
+        else $fatal(1,"assert fail: output outside OUTPUT state");
 
     // VALID must not depend on READY
     assert property (@(posedge clk)
