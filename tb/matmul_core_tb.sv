@@ -128,7 +128,7 @@ module matmul_core_tb #(
         end
       end
       if (mismatch) begin
-        $fatal("MISMATCH: DUT result incorrect");
+        $fatal(1, "MISMATCH: DUT result incorrect");
       end else begin
         $display("PASS: DUT result correct");
       end

@@ -96,7 +96,7 @@ module matmul_ctrlpath #(
     endproperty
 
     assert property (k_reset_check)
-        else $fatal("ASSERTION FAILED: k not reset to 0");
+        else $fatal(1, "ASSERTION FAILED: k not reset to 0");
 
     // k in range
     property k_range;
@@ -105,14 +105,14 @@ module matmul_ctrlpath #(
     endproperty
 
     assert property (k_range)
-        else $fatal("k out of range = %0d", k);  
+        else $fatal(1, "k out of range = %0d", k);  
 
     assert property (@(posedge clk) !rst_n |-> !done);  
 
     assert property (@(posedge clk) clear |-> !en)
-    else $fatal("clear and en both high");   
+    else $fatal(1, "clear and en both high");   
 
     assert property (@(posedge clk) done |-> !en)
-    else $fatal("done asserted while en still high");  
+    else $fatal(1, "done asserted while en still high");  
 
 endmodule

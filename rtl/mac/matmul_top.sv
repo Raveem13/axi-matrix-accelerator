@@ -90,7 +90,7 @@ module matmul_top #(
     endproperty
 
     assert property (k_sequence_check)
-        else $fatal("ASSERTION FAILED: k=1 seen without prior k=0");
+        else $fatal(1, "ASSERTION FAILED: k=1 seen without prior k=0");
 
     // clear and en must never be high together
     property clear_en_exclusive;
@@ -100,7 +100,7 @@ module matmul_top #(
     endproperty
 
     assert property (clear_en_exclusive)
-        else $fatal("ASSERTION FAILED: clear and en asserted together");
+        else $fatal(1, "ASSERTION FAILED: clear and en asserted together");
     
     // // Optional: Accumulator must only change when en=1
     // property acc_changes_only_on_en;
@@ -119,7 +119,7 @@ module matmul_top #(
     endproperty
 
     assert property (clear_zeroes_acc)
-        else $fatal("ASSERTION FAILED: clear did not zero acc");    
+        else $fatal(1, "ASSERTION FAILED: clear did not zero acc");    
 
     // // k in range
     // property k_range;

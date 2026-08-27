@@ -73,7 +73,7 @@ module matmul_datapath #(
     endproperty
 
     assert property (acc_changes_only_on_en)
-        else $fatal("ASSERTION FAILED: acc changed without en");
+        else $fatal(1, "ASSERTION FAILED: acc changed without en");
 
 endmodule
 
