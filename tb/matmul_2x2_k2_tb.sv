@@ -24,7 +24,7 @@ module matmul_2x2_k2_tb #(
   );
 
   initial begin
-    $dumpfile("wave_matmul_2x2_k2.vcd");
+    $dumpfile("./simulation_waveforms/wave_matmul_2x2_k2.vcd");
     $dumpvars(0, matmul_2x2_k2_tb);
   end
 
