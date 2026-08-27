@@ -22,6 +22,44 @@ This repository reflects **end-to-end verification ownership**, from RTL bring-u
 
 ---
 
+## 🛠️ Tools & Technologies
+
+* **Languages:** SystemVerilog, Verilog
+* **Methodology:** UVM 1.2
+* **Simulation:** XSIM (Vivado)
+* **Waveform Debug:** GTKWave / Surfer
+* **Build & Scripts:** Bash, Tcl
+
+For setting up Vivado on local machine, check this link:
+
+https://github.com/Raveem13/VivadoXSIM-UVM_verification#vivado-xsim--installation-setup--simulation-flow
+
+---
+
+## 📂 Repository Structure
+
+```
+axi_matrix_accelerator/
+├── reports/
+│       └── r0x_system_cov/
+├── rtl/
+│   ├── control/
+│   ├── datapath/
+│   └── top/
+├── tb/
+│   ├── interfaces/
+│   ├── agents/
+│   ├── env/
+│   ├── sequences/
+│   ├── tests/
+│   └── scoreboard/
+├── scripts/
+├── simulation_waveforms/
+├── docs/
+└── README.md
+```
+---
+
 ## Architecture Overview
 
 ### 🔹 DUT Description
@@ -243,6 +281,19 @@ separate agents for control and data planes.
 
 ---
 
+## Debugging & Failure Handling
+
+This project explicitly focuses on **real-world verification failure modes**:
+
+* False passes
+* Phase misuse bugs
+* Coverage blind spots
+* Factory / config DB misuse
+* Regression hygiene
+
+This is treated as a **core learning and design goal**, not an afterthought.
+
+---
 ## 📊 Coverage
 
 **Implemented Coverage**
@@ -261,59 +312,23 @@ Coverage is used as a **closure and guidance tool**, not as a checkbox.
   <!-- Todo: **Link only (not embed):** -->
   [`reports/r0x_system_cov/`](./reports/r05_uvm_sys_stream_bp)
 
----
+--- 
+### ▶️ Running Testbench
 
-## Debugging & Failure Handling
-
-This project explicitly focuses on **real-world verification failure modes**:
-
-* False passes
-* Phase misuse bugs
-* Coverage blind spots
-* Factory / config DB misuse
-* Regression hygiene
-
-This is treated as a **core learning and design goal**, not an afterthought.
-
----
-
-## 🛠️ Tools & Technologies
-
-* **Languages:** SystemVerilog, Verilog
-* **Methodology:** UVM 1.2
-* **Simulation:** XSIM (Vivado)
-* **Waveform Debug:** GTKWave
-* **Build & Scripts:** Bash, Tcl
-
-For setting up Vivado on local machine, check this link:
-
-https://github.com/Raveem13/VivadoXSIM-UVM_verification#vivado-xsim--installation-setup--simulation-flow
-
----
-
-## 📂 Repository Structure
-
+> ⚠️ **OS Dependency Warning**
+**Note:** The scripts in [`scripts/`](./scripts/) written for **WSL on Windows** (calls Windows host commands from WSL bash).
+```bash
+# Run simulation suite from WSL bash
+./scripts/run_sim.sh
 ```
-axi_matrix_accelerator/
-├── rtl/
-│   ├── control/
-│   ├── datapath/
-│   └── top/
-├── tb/
-│   ├── interfaces/
-│   ├── agents/
-│   ├── env/
-│   ├── sequences/
-│   ├── tests/
-│   └── scoreboard/
-├── scripts/
-├── reports/
-│       └── r0x_system_cov/
-├── docs/
-└── README.md
-```
+> If using native Linux or macOS, modify the scripts to match your local OS setup. (e.g., replace `cmd.exe /c` with direct binary paths).
 
 ---
+### 📈 Simulation Waveforms
+
+Raw simulation dump files (`.vcd`) for each pipeline stage are available in the [`simulation_waveforms/`](./simulation_waveforms/) directory. 
+
+You can check the timing logs using [**GTKWave**](https://gtkwave.sourceforge.net/) or [**Surfer**](https://surfer-project.org/)
 
 ## Current Status
 
@@ -336,12 +351,10 @@ axi_matrix_accelerator/
 ---
 
 ## Author
-
 **Raveem Gouda**
-
----
+✉️goudaraveem@gmail.com
 >Image credits:
-- *All block diagrams Created by me with draw.io.*
+- *All block diagrams created with draw.io.*
 - *Matrix multiplication visualization (2×2 MAC array animation) generated with the help of Claude (Anthropic).*
 ---
 
