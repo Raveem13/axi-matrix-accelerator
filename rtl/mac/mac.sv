@@ -23,7 +23,7 @@ module mac #(
         end else if(en) begin
             acc <= acc_next;
         end
-        // $display("[%0t] acc=%0d a=%0d b=%0d en=%b clear=%b",
+        // $display("[%0t] [MAC] acc=%0d a=%0d b=%0d en=%b clear=%b",
         //             $time, acc, a, b, en, clear);
     end
 

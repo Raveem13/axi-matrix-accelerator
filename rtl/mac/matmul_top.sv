@@ -38,6 +38,9 @@ module matmul_top #(
         .done(done)
     );
 
+    // Note: This control path is only for testing of Mat Mul core
+    // will be replaced by AXI stream FSMs
+
     // ---- Data Path module instantiation ----
     matmul_datapath #(
         .DATA_W(DATA_W),
@@ -51,7 +54,8 @@ module matmul_top #(
         .en(en),
         .clear(clear),
         .k(k),
-
+        .cfg_m(M),
+        .cfg_n(N),
         .A(A),
         .B(B),
 

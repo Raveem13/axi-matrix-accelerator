@@ -32,7 +32,7 @@ module matmul_datapath #(
 
     logic en_q;
 
-    string comp = "[MatMul]";
+    string comp = "[MatMul DataPath]";
 
     always_ff @(posedge clk) begin
         if (!rst_n)
