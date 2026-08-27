@@ -32,10 +32,10 @@ module matmul_core_tb #(
     .done(done)
   );
 
-  // initial begin
-  //   $dumpfile("wave_matmul_2x2_k2.vcd");
-  //   $dumpvars(0, matmul_2x2_k2_tb);
-  // end
+  initial begin
+    $dumpfile("./simulation_waveforms/wave_matmul_core_3x3_k5.vcd");
+    $dumpvars(0, matmul_core_tb);
+  end
 
   // Clock T=10ns
   always #5 clk = ~clk;
