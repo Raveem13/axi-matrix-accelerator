@@ -26,10 +26,10 @@ module matmul_2x2_kN_tb #(
     .done(done)
   );
 
-  // initial begin
-  //   $dumpfile("wave_matmul_2x2_k2.vcd");
-  //   $dumpvars(0, matmul_2x2_k2_tb);
-  // end
+  initial begin
+    $dumpfile("./simulation_waveforms/wave_matmul_2x2_kN.vcd");
+    $dumpvars(0, matmul_2x2_kN_tb);
+  end
 
   // Clock T=10ns
   always #5 clk = ~clk;
@@ -57,12 +57,12 @@ module matmul_2x2_kN_tb #(
     
   end
 
-    // Checker in Scoreboard
+    // Checker
   always @(posedge clk) begin
     if (done) begin
       golden_matmul_2x2_kn(A, B, C_ref);
 
-      $display("----- SCOREBOARD -----");
+      $display("----- Checker -----");
       $display("Expected C= %p", C_ref);
       $display("DUT op : C= %p", C);
 
