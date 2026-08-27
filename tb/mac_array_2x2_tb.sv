@@ -19,8 +19,8 @@ module mac_array_2x2_tb;
   );
 
 //   initial begin
-//     $dumpfile("wave.vcd");
-//     $dumpvars(0, basic_tb);
+//     $dumpfile("./simulation_waveforms/wave_macarray_2x2.vcd");
+//     $dumpvars(0, mac_array_2x2_tb);
 //   end
 
   // Clock

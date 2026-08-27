@@ -28,7 +28,7 @@ covdb_*/
 # Elaborated simulation snapshots
 *.sim
 *.wdb
-*.vcd
+# *.vcd
 
 # =========================
 # Vivado project artifacts

@@ -2,11 +2,11 @@
 set -e
 
 #Test bench name
-# basic_tb, mac_array_2x2_tb, matmul_2x2_k2_tb, matmul_2x2_kN_tb
+# basic_tb, mac_array_2x2_tb, matmul_2x2_k2_tb, matmul_2x2_kN_tb, 
 # CP1: matmul_core_tb
 # CP2: axi_lite_ctrl_wrapper_tb
 # CP3: comp_wrapper_tb13_fsm, comp_wrapper_tb14_backpress, comp_wrapper_tb15_doneIntr, comp_wrapper_tb16_stress
-TOP=matmul_core_tb
+TOP=mac_array_2x2_tb
 
 #Simulation snap-shot name
 SIM=sim_${TOP}
