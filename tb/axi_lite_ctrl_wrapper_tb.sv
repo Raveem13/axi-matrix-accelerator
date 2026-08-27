@@ -81,6 +81,11 @@ module axi_lite_ctrl_wrapper_tb #(
         .done(done)
     );
 
+    initial begin
+        $dumpfile("./simulation_waveforms/wave_axi_ctrl_wrapper.vcd");
+        $dumpvars(0, axi_lite_ctrl_wrapper_tb);
+    end
+
     always #5 clk = ~clk;
 
     initial begin
@@ -122,10 +127,10 @@ module axi_lite_ctrl_wrapper_tb #(
         
         // Check start pulse
         assert (dut.start == 1) 
-        else $fatal("%t START not asserted", $time);
+        else $fatal(1, "%t START not asserted", $time);
         @(posedge clk);
         assert (dut.start == 0) 
-        else $fatal("%t START not single cycle", $time);
+        else $fatal(1, "%t START not single cycle", $time);
 
         // Test B: STATUS read path
         $display("TestB: STATUS read path");
@@ -137,14 +142,14 @@ module axi_lite_ctrl_wrapper_tb #(
         // Read STATUS reg
         read_data(32'h04, t_rdata);
         assert (t_rdata[0] == 1'b1) 
-        else $fatal("STATUS not set");
+        else $fatal(1, "STATUS not set");
 
         // New start clears Status
         write_data(32'h00, 32'h1);      // write start control
         @(posedge clk);  
         read_data(32'h04, t_rdata);
         assert (t_rdata[0] == 1'b0) 
-        else $fatal("STATUS not cleared");
+        else $fatal(1, "STATUS not cleared");
 
         #40;
         $finish;

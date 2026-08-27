@@ -266,14 +266,14 @@ module axi_lite_ctrl_wrapper #(
 assert property (@(posedge clk)
     start |-> ##1 !start
 ) 
-else $fatal("start not single-cycle");
+else $fatal(1, "start not single-cycle");
 
 // B. Start only from CTRL write
 `ifndef STREAM_ONLY_TEST
 assert property (@(posedge clk)
     start |-> $past(write_fire && s_axi_awaddr == 32'h00)
 ) 
-else $fatal("START without CTRL write");
+else $fatal(1, "START without CTRL write");
 `endif
 
 // C. STATUS latches done
@@ -286,14 +286,14 @@ else $fatal(1, "%t STATUS did not latch DONE", $time);
 assert property (@(posedge clk)
     start |=> !status_reg[0] 
 ) 
-else $fatal("STATUS not cleared on new start");
+else $fatal(1, "STATUS not cleared on new start");
 
 
 // E. AXI write response eventually completes
 assert property (@(posedge clk)
     write_fire |-> ##[1:5] s_axi_bvalid
 ) 
-else $fatal("No BRESP after write");
+else $fatal(1, "No BRESP after write");
 
 
 `endif
